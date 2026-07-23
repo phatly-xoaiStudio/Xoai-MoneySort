@@ -15,6 +15,7 @@ namespace FlickSort
     public sealed class FlickSortBootstrap : MonoBehaviour
     {
         [SerializeField] private UIDefinitionSO uiDefinitionSo;
+        [SerializeField] private ChipColorConfigSO chipColorConfigSo;
         [SerializeField] private Font uiFont;
         [SerializeField] private AudioClip moveSound;
         [SerializeField] private AudioClip mergeSound;
@@ -30,13 +31,14 @@ namespace FlickSort
         {
             DOTween.Init(false, true, LogBehaviour.ErrorsOnly);
             SetUpCamera();
-            if (_board == null)
-                _board = FindFirstObjectByType<FlickSortBoard>(FindObjectsInactive.Include);
-            if (_board == null)
-                throw new InvalidOperationException("FlickSortBoard is missing from the scene.");
-            _board.gameObject.SetActive(false);
+            // if (_board == null)
+            //     _board = FindFirstObjectByType<FlickSortBoard>(FindObjectsInactive.Include);
+            // if (_board == null)
+            //     throw new InvalidOperationException("FlickSortBoard is missing from the scene.");
+            // _board.gameObject.SetActive(false);
             // BuildUi();
             _uiManager.Init(uiDefinitionSo.Definitions);
+            _board.Init(chipColorConfigSo);
             _gameplayUI = _uiManager.GetUi(UIEnum.GAMEPLAY_UI) as GameplayUI;
             _uiManager.ShowUI(UIEnum.LOADING_UI, new object[]
             {

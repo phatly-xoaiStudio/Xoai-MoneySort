@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using FlickSort;
+using UnityEngine;
 
 namespace FlickSort
 {
@@ -75,7 +77,12 @@ namespace FlickSort
             var groupCount = GetTopGroupCount();
             if (destination.FreeSlots < groupCount)
                 return false;
-
+            if (destination.Count > 0)
+                Debug.Log($"top moving color: {Top.Color}, top destination color: {destination.Top.Color}, free slots: {destination.FreeSlots}");
+            else
+            {
+                Debug.Log($"top moving color: {Top.Color}, moving to empty stack with free slots: {destination.FreeSlots}   ");
+            }
             return destination.Count == 0 || destination.Top.Color == Top.Color;
         }
 
@@ -99,6 +106,7 @@ namespace FlickSort
                 throw new InvalidOperationException("Not enough free slots in destination stack.");
             for (var i = 0; i < tokens.Count; i++)
                 _chips.Add(tokens[i]);
+            Debug.Log($"this stack have {Count} chips.");
         }
 
         public bool TryMergeTop(int mergeCount, int maxLevel, out ChipToken result)
@@ -125,9 +133,13 @@ namespace FlickSort
 
             var token = Top;
             var count = 1;
-            for (var i = _chips.Count - 2; i >= 0 && _chips[i].Equals(token); i--)
-                count++;
+            for (var i = _chips.Count - 2; i >= 0; i--)
+            {
+               if(_chips[i].Level==token.Level) count++;
+                
+            }
             return count;
         }
     }
 }
+

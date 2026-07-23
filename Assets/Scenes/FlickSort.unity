@@ -320,11 +320,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.FlickSortBootstrap
   uiDefinitionSo: {fileID: 11400000, guid: 31c15e922d6ec87499234c4024e50ccc, type: 2}
+  chipColorConfigSo: {fileID: 11400000, guid: 3dcbf7dcd2da3cf4ba0a2286729557c6, type: 2}
   uiFont: {fileID: 12800000, guid: 35abff9f1c6b69e49be8d00c575a63d1, type: 3}
   moveSound: {fileID: 8300000, guid: 48ff6eee01da8c8479bbcd7e2b55c197, type: 3}
   mergeSound: {fileID: 8300000, guid: 649f1c8312ba1f9408cb91d63de261cd, type: 3}
   dealSound: {fileID: 8300000, guid: 433836a874792a249b21ae3a811d3eab, type: 3}
-  _board: {fileID: 0}
+  _board: {fileID: 644987521}
   _uiManager: {fileID: 175650344}
 --- !u!4 &274590993
 Transform:
@@ -420,6 +421,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &644987521 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7258901542711770761, guid: fe65d80067c310043b368d936d13739f, type: 3}
+  m_PrefabInstance: {fileID: 150375537}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 466bf0a67cd10e04fb3e449ae84f0e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.FlickSortBoard
 --- !u!1 &679124034
 GameObject:
   m_ObjectHideFlags: 0
@@ -430,7 +442,6 @@ GameObject:
   m_Component:
   - component: {fileID: 679124038}
   - component: {fileID: 679124037}
-  - component: {fileID: 679124036}
   - component: {fileID: 679124035}
   m_Layer: 0
   m_Name: Camera
@@ -483,14 +494,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &679124036
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679124034}
-  m_Enabled: 1
 --- !u!20 &679124037
 Camera:
   m_ObjectHideFlags: 0

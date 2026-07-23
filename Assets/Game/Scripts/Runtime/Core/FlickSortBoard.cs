@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FlickSort.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,8 +11,7 @@ namespace FlickSort
     {
         [SerializeField] private FlickSortGameConfig config;
         [SerializeField] private GameObject chipPrefab;
-        [SerializeField] private Material[] chipMaterials = new Material[5];
-
+        private ChipColorConfigSO _colorConfig;
         [SerializeField] private List<ChipStackView> _stacks = new();
         private readonly Dictionary<ChipStackView, List<ChipView>> _views = new();
         private readonly Stack<ChipView> _pool = new();
@@ -32,8 +32,9 @@ namespace FlickSort
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
 
-        private void Start()
+        public void Init(ChipColorConfigSO colorConfig)
         {
+            _colorConfig = colorConfig;
             _camera = Camera.main;
             _currentLevel = Mathf.Max(1, PlayerPrefs.GetInt("FlickSort.CurrentLevel", 1));
             StartLevel(_currentLevel);
@@ -158,7 +159,8 @@ namespace FlickSort
                 var amount = Mathf.Min(remaining, Mathf.Min(stack.Model.FreeSlots, _random.Next(range.x, range.y + 1)));
                 for (var i = 0; i < amount; i++)
                 {
-                    var token = new ChipToken((ChipColor)_random.Next(0, _level.colorCount), 1);
+                    int randomColorLevel = _random.Next(0, _level.colorCount);
+                    var token = new ChipToken((ChipColor)randomColorLevel, randomColorLevel);
                     var slot = stack.Model.Count;
                     stack.Model.TryAdd(token);
                     var view = GetChip(token);
@@ -210,7 +212,7 @@ namespace FlickSort
                     ReturnChip(mergeViews[i]);
                 resultView.transform.position = destination;
                 resultView.transform.localScale = Vector3.one;
-                resultView.SetToken(result, chipMaterials[(int)result.Color]);
+                resultView.SetToken(result, _colorConfig.GetColor(result.Color));
                 resultView.transform.DOPunchScale(Vector3.one * 0.18f, 0.28f, 6, 0.5f);
                 views.Add(resultView);
 
@@ -266,7 +268,7 @@ namespace FlickSort
                 }
             }
             view.transform.localScale = Vector3.one;
-            view.Initialize(token, chipMaterials[(int)token.Color]);
+            view.Initialize(token, _colorConfig.GetColor(token.Color));
             return view;
         }
 

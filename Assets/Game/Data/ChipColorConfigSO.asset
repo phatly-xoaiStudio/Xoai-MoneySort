@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1bb68f9164d40429aa51c34f56ff3fd, type: 3}
+  m_Name: ChipColorConfigSO
+  m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.Data.ChipColorConfigSO
+  colors:
+  - ColorEnum: 1
+    Color: {fileID: 2100000, guid: a1c542259b303d8428ff63fe54ec1747, type: 2}
+  - ColorEnum: 2
+    Color: {fileID: 2100000, guid: 0e654082adadfab42bc67133964f602c, type: 2}
+  - ColorEnum: 3
+    Color: {fileID: 2100000, guid: 80fabf0407b6e8b4f9ee8e991cb2e5c7, type: 2}
+  - ColorEnum: 0
+    Color: {fileID: 2100000, guid: 780bb89a21e37034caeb66416b29abde, type: 2}
+  - ColorEnum: 4
+    Color: {fileID: 2100000, guid: 8710022536f463f40b492f8f6516bc3e, type: 2}
