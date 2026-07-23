@@ -1,0 +1,12 @@
+{
+  "name": "FlickSort.Runtime",
+  "rootNamespace": "FlickSort",
+  "references": [
+    "DOTween",
+    "Unity.InputSystem",
+    "Unity.InputSystem.UI",
+    "Unity.ugui",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": true
+}

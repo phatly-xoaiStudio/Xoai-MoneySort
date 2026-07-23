@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4feab9d37863314a85ef432720ce5b0, type: 3}
+  m_Name: FlickSortGameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::FlickSort.FlickSortGameConfig
+  mergeChipCount: 10
+  maxChipLevel: 10
+  stackCapacity: 10
+  defaultDealChipCount: 10
+  randomChipsPerStack: {x: 1, y: 3}
+  chipSpacing: 0.11
+  stackSpacing: 1.45
+  moveDuration: 0.28
+  dealDuration: 0.34
+  mergeDuration: 0.22
+  chipMoveDelay: 0.045
+  jumpPower: 0.75
+  levels:
+  - levelNumber: 1
+    openedStackCount: 20
+    colorCount: 3
+    initialChipCount: 24
+    dealChipCount: 8
+    requiredMerges: 6
+    chipsPerStackRange: {x: 1, y: 2}
+    randomSeed: 1810
+  - levelNumber: 2
+    openedStackCount: 20
+    colorCount: 3
+    initialChipCount: 26
+    dealChipCount: 9
+    requiredMerges: 8
+    chipsPerStackRange: {x: 1, y: 2}
+    randomSeed: 1911
+  - levelNumber: 3
+    openedStackCount: 20
+    colorCount: 3
+    initialChipCount: 28
+    dealChipCount: 10
+    requiredMerges: 10
+    chipsPerStackRange: {x: 1, y: 2}
+    randomSeed: 2012
+  - levelNumber: 4
+    openedStackCount: 20
+    colorCount: 4
+    initialChipCount: 30
+    dealChipCount: 11
+    requiredMerges: 12
+    chipsPerStackRange: {x: 1, y: 2}
+    randomSeed: 2113
+  - levelNumber: 5
+    openedStackCount: 20
+    colorCount: 4
+    initialChipCount: 32
+    dealChipCount: 12
+    requiredMerges: 14
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2214
+  - levelNumber: 6
+    openedStackCount: 20
+    colorCount: 4
+    initialChipCount: 34
+    dealChipCount: 13
+    requiredMerges: 16
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2315
+  - levelNumber: 7
+    openedStackCount: 20
+    colorCount: 4
+    initialChipCount: 36
+    dealChipCount: 14
+    requiredMerges: 18
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2416
+  - levelNumber: 8
+    openedStackCount: 20
+    colorCount: 5
+    initialChipCount: 38
+    dealChipCount: 15
+    requiredMerges: 20
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2517
+  - levelNumber: 9
+    openedStackCount: 20
+    colorCount: 5
+    initialChipCount: 40
+    dealChipCount: 16
+    requiredMerges: 22
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2618
+  - levelNumber: 10
+    openedStackCount: 20
+    colorCount: 5
+    initialChipCount: 42
+    dealChipCount: 17
+    requiredMerges: 24
+    chipsPerStackRange: {x: 1, y: 3}
+    randomSeed: 2719

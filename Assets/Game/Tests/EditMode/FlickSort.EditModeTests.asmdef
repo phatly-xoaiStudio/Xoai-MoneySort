@@ -1,0 +1,14 @@
+{
+  "name": "FlickSort.EditModeTests",
+  "rootNamespace": "FlickSort.Tests",
+  "references": [
+    "FlickSort.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false
+}
