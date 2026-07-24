@@ -134,7 +134,11 @@ namespace FlickSort
                 sequence.Join(tween);
                 sequence.InsertCallback(
                     config.moveDuration + i * config.chipMoveDelay,
-                    () => ChipMoveLanded?.Invoke());
+                    () =>
+                    {
+                        Debug.Log("invoke chip move landed");
+                        ChipMoveLanded?.Invoke();
+                    });
             }
             yield return sequence.WaitForCompletion();
             yield return ResolveMerges(destination);

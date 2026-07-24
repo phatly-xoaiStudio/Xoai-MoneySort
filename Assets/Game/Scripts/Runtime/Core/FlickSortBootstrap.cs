@@ -21,7 +21,7 @@ namespace FlickSort
         [SerializeField] private AudioClip moveSound;
         [SerializeField] private AudioClip mergeSound;
         [SerializeField] private AudioClip dealSound;
-        [SerializeField, Min(0.02f)] private float moveSoundMinInterval = 0.06f;
+        [SerializeField] private float moveSoundMinInterval = 0.06f;
         [SerializeField, Range(0f, 1f)] private float moveSoundVolume = 0.5f;
         [SerializeField] private Vector2 moveSoundPitchRange = new(0.94f, 1.06f);
 
@@ -230,13 +230,14 @@ namespace FlickSort
                 return;
 
             var now = Time.unscaledTime;
-            if (now < _nextMoveSoundTime || _audioSource.isPlaying)
+            if (now < _nextMoveSoundTime)
                 return;
 
             _audioSource.pitch = UnityEngine.Random.Range(
                 moveSoundPitchRange.x,
                 moveSoundPitchRange.y);
             _audioSource.PlayOneShot(moveSound, moveSoundVolume);
+            Debug.Log($"Playing move sound");
             _nextMoveSoundTime = now + moveSoundMinInterval;
         }
 

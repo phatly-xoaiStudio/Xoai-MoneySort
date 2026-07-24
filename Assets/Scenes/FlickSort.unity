@@ -326,7 +326,7 @@ MonoBehaviour:
   moveSound: {fileID: 8300000, guid: 48ff6eee01da8c8479bbcd7e2b55c197, type: 3}
   mergeSound: {fileID: 8300000, guid: 649f1c8312ba1f9408cb91d63de261cd, type: 3}
   dealSound: {fileID: 8300000, guid: 433836a874792a249b21ae3a811d3eab, type: 3}
-  moveSoundMinInterval: 0.06
+  moveSoundMinInterval: 0.003
   moveSoundVolume: 0.5
   moveSoundPitchRange: {x: 0.94, y: 1.06}
   _board: {fileID: 644987521}
