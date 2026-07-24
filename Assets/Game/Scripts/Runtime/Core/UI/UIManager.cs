@@ -19,7 +19,7 @@ namespace FlickSort.UI
                     continue;
                 var ui = Instantiate(view.UI, transform);
                 ui.Init(this);
-                ui.Hide();
+                ui.HideImmediate();
                 _views.Add(view.Name, ui);
             }
         }

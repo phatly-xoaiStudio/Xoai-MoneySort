@@ -303,6 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5497ff67a31b08d468ec62ad51181bb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.LoadingUI
+  _animation: {fileID: 0}
   _fillImage: {fileID: 1410091296290584546}
   _loadingText: {fileID: 258899188632378214}
 --- !u!1 &7723358887304732929

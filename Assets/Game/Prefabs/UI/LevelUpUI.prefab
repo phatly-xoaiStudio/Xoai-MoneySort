@@ -88,6 +88,8 @@ GameObject:
   - component: {fileID: 7881688435789047210}
   - component: {fileID: 8862464346380884011}
   - component: {fileID: 5084892178266618099}
+  - component: {fileID: 9000000000000000001}
+  - component: {fileID: 9000000000000000002}
   m_Layer: 5
   m_Name: LevelUpUI
   m_TagString: Untagged
@@ -165,7 +167,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2000000000000000000000000000001, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.LevelUpUI
+  _animation: {fileID: 9000000000000000002}
   _titleText: {fileID: 6600477494582807298}
+--- !u!225 &9000000000000000001
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7036191417643534859}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &9000000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7036191417643534859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3000000000000000000000000000002, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.ScaleFadeUIAnimation
+  showDuration: 0.3
+  showEase: 27
+  hideDuration: 0.2
+  hideEase: 26
+  useUnscaledTime: 1
+  target: {fileID: 219994339334378510}
+  canvasGroup: {fileID: 9000000000000000001}
+  hiddenScale: {x: 0.82, y: 0.82, z: 1}
+  shownScale: {x: 1, y: 1, z: 1}
+  hiddenAlpha: 0
+  shownAlpha: 1
 --- !u!1 &8313034226723277019
 GameObject:
   m_ObjectHideFlags: 0

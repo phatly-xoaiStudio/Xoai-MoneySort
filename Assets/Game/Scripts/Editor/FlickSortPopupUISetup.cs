@@ -14,6 +14,7 @@ namespace FlickSort.Editor
     {
         private const string LevelUpPrefabPath = "Assets/Game/Prefabs/UI/LevelUpUI.prefab";
         private const string LosePrefabPath = "Assets/Game/Prefabs/UI/LoseUI.prefab";
+        private const string GameplayPrefabPath = "Assets/Game/Prefabs/UI/GameplayUI.prefab";
         private const string DefinitionPath = "Assets/Game/Data/UIDefinitionSO.asset";
         private const string FontGuid = "3577af8a805888344b4b32e2be5e8e9b";
 
@@ -33,6 +34,11 @@ namespace FlickSort.Editor
         {
             var levelUp = BuildLevelUpPrefab();
             var lose = BuildLosePrefab();
+            EnsureAnimation(LevelUpPrefabPath);
+            EnsureAnimation(LosePrefabPath);
+            EnsureAnimation(GameplayPrefabPath);
+            levelUp = AssetDatabase.LoadAssetAtPath<GameObject>(LevelUpPrefabPath).GetComponent<LevelUpUI>();
+            lose = AssetDatabase.LoadAssetAtPath<GameObject>(LosePrefabPath).GetComponent<LoseUI>();
             Register(UIEnum.LEVEL_UP_UI, levelUp);
             Register(UIEnum.LOSE_UI, lose);
             AssetDatabase.SaveAssets();
@@ -49,7 +55,59 @@ namespace FlickSort.Editor
                 !IsRegistered(UIEnum.LOSE_UI))
             {
                 Build();
+                return;
             }
+
+            EnsureAnimation(LevelUpPrefabPath);
+            EnsureAnimation(LosePrefabPath);
+            EnsureAnimation(GameplayPrefabPath);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static void EnsureAnimation(string prefabPath)
+        {
+            var root = PrefabUtility.LoadPrefabContents(prefabPath);
+            var changed = false;
+
+            var canvasGroup = root.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = root.AddComponent<CanvasGroup>();
+                changed = true;
+            }
+
+            var animation = root.GetComponent<ScaleFadeUIAnimation>();
+            if (animation == null)
+            {
+                animation = root.AddComponent<ScaleFadeUIAnimation>();
+                changed = true;
+            }
+
+            var view = root.GetComponent<UIBase>();
+            var viewSerialized = new SerializedObject(view);
+            var animationProperty = viewSerialized.FindProperty("_animation");
+            if (animationProperty.objectReferenceValue != animation)
+            {
+                animationProperty.objectReferenceValue = animation;
+                viewSerialized.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            var animationSerialized = new SerializedObject(animation);
+            var targetProperty = animationSerialized.FindProperty("target");
+            var canvasGroupProperty = animationSerialized.FindProperty("canvasGroup");
+            if (targetProperty.objectReferenceValue != root.transform ||
+                canvasGroupProperty.objectReferenceValue != canvasGroup)
+            {
+                targetProperty.objectReferenceValue = root.transform;
+                canvasGroupProperty.objectReferenceValue = canvasGroup;
+                animationSerialized.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            if (changed)
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            PrefabUtility.UnloadPrefabContents(root);
         }
 
         private static LevelUpUI BuildLevelUpPrefab()
