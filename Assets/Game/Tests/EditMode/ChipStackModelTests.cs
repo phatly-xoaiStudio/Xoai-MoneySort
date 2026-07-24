@@ -29,10 +29,26 @@ namespace FlickSort.Tests
         }
 
         [Test]
-        public void Move_RejectsDestinationWithoutEnoughSlots()
+        public void Move_AllowsPartialTransferWhenDestinationHasFewerSlots()
+        {
+            var source = CreateStack(10, ChipColor.Red, 1, 3);
+            var destination = CreateStack(10, ChipColor.Red, 1, 9);
+
+            Assert.That(source.CanMoveTopGroupTo(destination), Is.True);
+
+            var moved = source.RemoveTopGroup(destination.FreeSlots);
+            destination.AddRange(moved);
+
+            Assert.That(moved.Count, Is.EqualTo(1));
+            Assert.That(source.Count, Is.EqualTo(2));
+            Assert.That(destination.Count, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void Move_RejectsFullDestination()
         {
             var source = CreateStack(10, ChipColor.Red, 1, 2);
-            var destination = CreateStack(10, ChipColor.Red, 1, 9);
+            var destination = CreateStack(10, ChipColor.Red, 1, 10);
 
             Assert.That(source.CanMoveTopGroupTo(destination), Is.False);
         }

@@ -112,7 +112,7 @@ namespace FlickSort
         private IEnumerator MoveRoutine(ChipStackView source, ChipStackView destination)
         {
             _busy = true;
-            var tokens = source.Model.RemoveTopGroup();
+            var tokens = source.Model.RemoveTopGroup(destination.Model.FreeSlots);
             var sourceViews = _views[source];
             var movingViews = sourceViews.GetRange(sourceViews.Count - tokens.Count, tokens.Count);
             sourceViews.RemoveRange(sourceViews.Count - tokens.Count, tokens.Count);
