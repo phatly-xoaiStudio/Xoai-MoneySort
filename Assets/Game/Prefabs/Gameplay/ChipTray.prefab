@@ -49,12 +49,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.FlickSortBoard
   config: {fileID: 11400000, guid: 80ff36dd68443464db3ac00f5f591d2f, type: 2}
   chipPrefab: {fileID: 1909988381792657717, guid: 03fbca467eb207a4db28fc30a0a67346, type: 3}
-  chipMaterials:
-  - {fileID: 2100000, guid: 780bb89a21e37034caeb66416b29abde, type: 2}
-  - {fileID: 2100000, guid: a1c542259b303d8428ff63fe54ec1747, type: 2}
-  - {fileID: 2100000, guid: 0e654082adadfab42bc67133964f602c, type: 2}
-  - {fileID: 2100000, guid: 80fabf0407b6e8b4f9ee8e991cb2e5c7, type: 2}
-  - {fileID: 2100000, guid: 8710022536f463f40b492f8f6516bc3e, type: 2}
   _stacks:
   - {fileID: 6815795224129253123}
   - {fileID: 175948726338766132}
@@ -775,6 +769,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 4570268821880d34a8e6135ac01c124f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 11a39ec83955b6b47a2e19c123c50192, type: 2}
     - target: {fileID: 919132149155446097, guid: 4570268821880d34a8e6135ac01c124f, type: 3}
       propertyPath: m_Name
       value: Chip_tray_v1
@@ -1072,6 +1070,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 4570268821880d34a8e6135ac01c124f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 11a39ec83955b6b47a2e19c123c50192, type: 2}
     - target: {fileID: 919132149155446097, guid: 4570268821880d34a8e6135ac01c124f, type: 3}
       propertyPath: m_Name
       value: Chip_tray_v1 (1)

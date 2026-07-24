@@ -16,6 +16,7 @@ namespace FlickSort
         private readonly Dictionary<ChipStackView, List<ChipView>> _views = new();
         private readonly Stack<ChipView> _pool = new();
         private Camera _camera;
+        private Transform _chipSpawner;
         private ChipStackView _selected;
         private LevelSettings _level;
         private System.Random _random;
@@ -27,14 +28,18 @@ namespace FlickSort
         public event System.Action<int> LevelUp;
         public event System.Action LevelLost;
         public event System.Action DealStarted;
+        public event System.Action ChipMoveLanded;
         public event System.Action<Vector3> MergeCompleted;
         public event System.Action InvalidMove;
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
 
-        public void Init(ChipColorConfigSO colorConfig)
+        public void Init(ChipColorConfigSO colorConfig, Transform chipSpawner)
         {
             _colorConfig = colorConfig;
+            _chipSpawner = chipSpawner != null
+                ? chipSpawner
+                : throw new MissingReferenceException("FlickSortBoard requires a scene Chip Spawner.");
             _camera = Camera.main;
             _currentLevel = Mathf.Max(1, PlayerPrefs.GetInt("FlickSort.CurrentLevel", 1));
             StartLevel(_currentLevel);
@@ -127,6 +132,9 @@ namespace FlickSort
                 movingViews[i].transform.localScale = Vector3.one;
                 var tween = movingViews[i].JumpTo(destination.GetWorldSlot(startIndex + i, config.chipSpacing), config.jumpPower, config.moveDuration, i * config.chipMoveDelay);
                 sequence.Join(tween);
+                sequence.InsertCallback(
+                    config.moveDuration + i * config.chipMoveDelay,
+                    () => ChipMoveLanded?.Invoke());
             }
             yield return sequence.WaitForCompletion();
             yield return ResolveMerges(destination);
@@ -166,9 +174,13 @@ namespace FlickSort
                     var view = GetChip(token);
                     view.transform.SetParent(stack.ChipRoot, false);
                     view.transform.localScale = Vector3.one;
-                    view.transform.position = stack.GetWorldSlot(slot, config.chipSpacing) + Vector3.up * 5f;
+                    view.transform.position = _chipSpawner.position;
                     _views[stack].Add(view);
-                    sequence.Join(view.DealTo(stack.GetWorldSlot(slot, config.chipSpacing), config.dealDuration, delay));
+                    sequence.Join(view.JumpTo(
+                        stack.GetWorldSlot(slot, config.chipSpacing),
+                        config.jumpPower,
+                        config.dealDuration,
+                        delay));
                     delay += config.chipMoveDelay * 0.45f;
                 }
                 remaining -= amount;

@@ -16,16 +16,21 @@ namespace FlickSort
     {
         [SerializeField] private UIDefinitionSO uiDefinitionSo;
         [SerializeField] private ChipColorConfigSO chipColorConfigSo;
+        [SerializeField] private Transform chipSpawner;
         [SerializeField] private Font uiFont;
         [SerializeField] private AudioClip moveSound;
         [SerializeField] private AudioClip mergeSound;
         [SerializeField] private AudioClip dealSound;
+        [SerializeField, Min(0.02f)] private float moveSoundMinInterval = 0.06f;
+        [SerializeField, Range(0f, 1f)] private float moveSoundVolume = 0.5f;
+        [SerializeField] private Vector2 moveSoundPitchRange = new(0.94f, 1.06f);
 
         [SerializeField] private FlickSortBoard _board;
         [SerializeField] private UIManager _uiManager;
         private GameplayUI _gameplayUI;
         private AudioSource _audioSource;
         private Material _particleMaterial;
+        private float _nextMoveSoundTime;
 
         private void Awake()
         {
@@ -38,7 +43,7 @@ namespace FlickSort
             // _board.gameObject.SetActive(false);
             // BuildUi();
             _uiManager.Init(uiDefinitionSo.Definitions);
-            _board.Init(chipColorConfigSo);
+            _board.Init(chipColorConfigSo, chipSpawner);
             _gameplayUI = _uiManager.GetUi(UIEnum.GAMEPLAY_UI) as GameplayUI;
             _uiManager.ShowUI(UIEnum.LOADING_UI, new object[]
             {
@@ -75,6 +80,7 @@ namespace FlickSort
             _board.LevelUp += OnLevelUp;
             _board.LevelLost += OnLevelLost;
             _board.DealStarted += OnDealStarted;
+            _board.ChipMoveLanded += OnChipMoveLanded;
             _board.MergeCompleted += OnMergeCompleted;
             _board.InvalidMove += OnInvalidMove;
             complete?.Invoke();
@@ -112,6 +118,7 @@ namespace FlickSort
             _board.LevelUp -= OnLevelUp;
             _board.LevelLost -= OnLevelLost;
             _board.DealStarted -= OnDealStarted;
+            _board.ChipMoveLanded -= OnChipMoveLanded;
             _board.MergeCompleted -= OnMergeCompleted;
             _board.InvalidMove -= OnInvalidMove;
             if (_particleMaterial != null)
@@ -217,6 +224,22 @@ namespace FlickSort
 
         private void OnInvalidMove() => PlayOneShot(moveSound, 0.35f);
 
+        private void OnChipMoveLanded()
+        {
+            if (moveSound == null || _audioSource == null)
+                return;
+
+            var now = Time.unscaledTime;
+            if (now < _nextMoveSoundTime || _audioSource.isPlaying)
+                return;
+
+            _audioSource.pitch = UnityEngine.Random.Range(
+                moveSoundPitchRange.x,
+                moveSoundPitchRange.y);
+            _audioSource.PlayOneShot(moveSound, moveSoundVolume);
+            _nextMoveSoundTime = now + moveSoundMinInterval;
+        }
+
         private void OnMergeCompleted(Vector3 position)
         {
             PlayOneShot(mergeSound, 0.9f);
@@ -227,7 +250,10 @@ namespace FlickSort
         private void PlayOneShot(AudioClip clip, float volume)
         {
             if (clip != null && _audioSource != null)
+            {
+                _audioSource.pitch = 1f;
                 _audioSource.PlayOneShot(clip, volume);
+            }
         }
 
         private void SpawnMergeBurst(Vector3 position)
