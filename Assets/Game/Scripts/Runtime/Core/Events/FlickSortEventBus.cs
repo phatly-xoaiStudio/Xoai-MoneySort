@@ -16,6 +16,7 @@ namespace FlickSort.Core
         public static event Action LevelLost;
         public static event Action DealStarted;
         public static event Action ChipMoveLanded;
+        public static event Action<int> ProgressStarLanded;
         public static event Action<Vector3> MergeCompleted;
         public static event Action InvalidMove;
 
@@ -30,6 +31,7 @@ namespace FlickSort.Core
         public static void RaiseLevelLost() => LevelLost?.Invoke();
         public static void RaiseDealStarted() => DealStarted?.Invoke();
         public static void RaiseChipMoveLanded() => ChipMoveLanded?.Invoke();
+        public static void RaiseProgressStarLanded(int starIndex) => ProgressStarLanded?.Invoke(starIndex);
         public static void RaiseMergeCompleted(Vector3 position) => MergeCompleted?.Invoke(position);
         public static void RaiseInvalidMove() => InvalidMove?.Invoke();
 
@@ -48,6 +50,7 @@ namespace FlickSort.Core
             LevelLost = null;
             DealStarted = null;
             ChipMoveLanded = null;
+            ProgressStarLanded = null;
             MergeCompleted = null;
             InvalidMove = null;
         }

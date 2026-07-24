@@ -456,9 +456,13 @@ MonoBehaviour:
   moveSound: {fileID: 8300000, guid: 48ff6eee01da8c8479bbcd7e2b55c197, type: 3}
   mergeSound: {fileID: 8300000, guid: 649f1c8312ba1f9408cb91d63de261cd, type: 3}
   dealSound: {fileID: 8300000, guid: 433836a874792a249b21ae3a811d3eab, type: 3}
+  progressStarSound: {fileID: 8300000, guid: f7327cb3caf3b10468c1bcc535f4721c, type: 3}
   moveSoundMinInterval: 0.003
   moveSoundVolume: 0.5
   moveSoundPitchRange: {x: 0.94, y: 1.06}
+  progressStarSoundMinInterval: 0.04
+  progressStarSoundVolume: 0.45
+  progressStarSoundPitchRange: {x: 1, y: 1.35}
 --- !u!114 &274590996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +490,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.FlickSortFeedbackManager
   mergeBurstPrefab: {fileID: 8343233060648734766, guid: 81ca89c5266332145837589df2951052, type: 3}
-  mergeBurstLifetime: 1.2
 --- !u!1 &516804498
 GameObject:
   m_ObjectHideFlags: 0

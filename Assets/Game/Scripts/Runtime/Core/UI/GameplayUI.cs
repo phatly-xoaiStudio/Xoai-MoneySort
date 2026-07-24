@@ -65,6 +65,7 @@ namespace FlickSort.UI
 
             for (var i = 0; i < _flyingStars.Length; i++)
             {
+                var starIndex = i;
                 var star = _flyingStars[i];
                 var rect = star.rectTransform;
                 var delay = i * _starStagger;
@@ -87,6 +88,7 @@ namespace FlickSort.UI
                         .OnComplete(() =>
                         {
                             star.gameObject.SetActive(false);
+                            FlickSortEventBus.RaiseProgressStarLanded(starIndex);
                             _starTarget.DOKill();
                             _starTarget.localScale = Vector3.one;
                             _starTarget.DOPunchScale(

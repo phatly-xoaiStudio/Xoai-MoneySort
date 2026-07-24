@@ -3,7 +3,9 @@ using System.IO;
 using FlickSort.UI;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace FlickSort.Editor
@@ -12,7 +14,10 @@ namespace FlickSort.Editor
     internal static class FlickSortProgressUISetup
     {
         private const string PrefabPath = "Assets/Game/Prefabs/UI/GameplayUI.prefab";
-        private const string MarkerPath = "Assets/Game/.progress-ui-setup-v1";
+        private const string MarkerPath = "Assets/Game/.progress-ui-setup-v2";
+        private const string ScenePath = "Assets/Scenes/FlickSort.unity";
+        private const string ProgressSoundPath =
+            "Assets/Game/Sprite/KenneyUIPack/Sounds/tap-b.ogg";
         private const int StarCount = 10;
 
         static FlickSortProgressUISetup()
@@ -86,7 +91,8 @@ namespace FlickSort.Editor
                 PrefabUtility.UnloadPrefabContents(root);
             }
 
-            File.WriteAllText(MarkerPath, "Progress star UI setup version 1.\n");
+            WireProgressSound();
+            File.WriteAllText(MarkerPath, "Progress star UI and sound setup version 2.\n");
             AssetDatabase.ImportAsset(MarkerPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -116,6 +122,47 @@ namespace FlickSort.Editor
             child.layer = LayerMask.NameToLayer("UI");
             child.transform.SetParent(parent, false);
             return child.GetComponent<RectTransform>();
+        }
+
+        private static void WireProgressSound()
+        {
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(ProgressSoundPath);
+            if (clip == null)
+                throw new MissingReferenceException($"Progress sound is missing: {ProgressSoundPath}");
+
+            var scene = SceneManager.GetSceneByPath(ScenePath);
+            var openedForSetup = !scene.IsValid() || !scene.isLoaded;
+            if (openedForSetup)
+                scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Additive);
+
+            try
+            {
+                foreach (var root in scene.GetRootGameObjects())
+                {
+                    var soundManager = root.GetComponentInChildren<FlickSortSoundManager>(true);
+                    if (soundManager == null)
+                        continue;
+
+                    var serialized = new SerializedObject(soundManager);
+                    serialized.FindProperty("progressStarSound").objectReferenceValue = clip;
+                    serialized.FindProperty("progressStarSoundMinInterval").floatValue = 0.04f;
+                    serialized.FindProperty("progressStarSoundVolume").floatValue = 0.45f;
+                    serialized.FindProperty("progressStarSoundPitchRange").vector2Value =
+                        new Vector2(1f, 1.35f);
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(soundManager);
+                    EditorSceneManager.MarkSceneDirty(scene);
+                    EditorSceneManager.SaveScene(scene);
+                    return;
+                }
+
+                throw new MissingReferenceException($"FlickSortSoundManager was not found in {ScenePath}.");
+            }
+            finally
+            {
+                if (openedForSetup)
+                    EditorSceneManager.CloseScene(scene, true);
+            }
         }
 
         private static void Stretch(RectTransform rect)

@@ -1,0 +1,16 @@
+Asset: Collect Points sound effect
+Local file: Assets/Game/Sound/liecio-collect-points-190037.mp3
+Creator: LIECIO
+Source: Pixabay
+Credit: Sound Effect by LIECIO from Pixabay
+
+Source page:
+https://pixabay.com/sound-effects/collect-points-190037/
+
+License:
+Pixabay Content License
+https://pixabay.com/service/license-summary/
+
+This attribution record was added from the credit text supplied by Pixabay
+when the asset was downloaded. Refer to the linked license for the complete
+and current terms of use.
