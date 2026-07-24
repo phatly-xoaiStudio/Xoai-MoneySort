@@ -212,7 +212,7 @@ namespace FlickSort
                     ReturnChip(mergeViews[i]);
                 resultView.transform.position = destination;
                 resultView.transform.localScale = Vector3.one;
-                resultView.SetToken(result, _colorConfig.GetColor(result.Color));
+                resultView.SetToken(result, new Material[]{ _colorConfig.GetColor(result.Color)});
                 resultView.transform.DOPunchScale(Vector3.one * 0.18f, 0.28f, 6, 0.5f);
                 views.Add(resultView);
 
@@ -268,7 +268,7 @@ namespace FlickSort
                 }
             }
             view.transform.localScale = Vector3.one;
-            view.Initialize(token, _colorConfig.GetColor(token.Color));
+            view.Initialize(token, new Material[]{_colorConfig.GetColor(token.Color)});
             return view;
         }
 

@@ -50,6 +50,7 @@ MonoBehaviour:
   _label: {fileID: 6564843700713992808}
   _trails:
   - {fileID: 2811925977138337979}
+  materialChangeSlots: 02000000
 --- !u!1 &7000000000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,8 +262,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4283256141
-  m_fontColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
+    rgba: 4280558628
+  m_fontColor: {r: 0.14150941, g: 0.14150941, b: 0.14150941, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

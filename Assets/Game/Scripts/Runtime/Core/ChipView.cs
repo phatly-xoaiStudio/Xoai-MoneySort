@@ -9,22 +9,23 @@ namespace FlickSort
         [SerializeField] private Renderer[] _renderers;
         [SerializeField] private TextMeshPro _label;
         [SerializeField] private TrailRenderer[] _trails;
+        [SerializeField] private int[] materialChangeSlots;   
         private Tween _activeTween;
 
         public ChipToken Token { get; private set; }
 
-        public void Initialize(ChipToken token, Material material)
+        public void Initialize(ChipToken token, Material[] material)
         {
-            _renderers ??= GetComponentsInChildren<Renderer>(true);
-            _trails ??= GetComponentsInChildren<TrailRenderer>(true);
-            if (_label == null)
-                throw new MissingReferenceException(
-                    $"{nameof(ChipView)} on '{name}' requires an authored TextMeshPro label.");
+            // _renderers ??= GetComponentsInChildren<Renderer>(true);
+            // _trails ??= GetComponentsInChildren<TrailRenderer>(true);
+            // if (_label == null)
+            //     throw new MissingReferenceException(
+            //         $"{nameof(ChipView)} on '{name}' requires an authored TextMeshPro label.");
             SetToken(token, material);
             SetTrail(false);
         }
 
-        public void SetToken(ChipToken token, Material material)
+        public void SetToken(ChipToken token, Material[] material)
         {
             Token = token;
             _renderers ??= GetComponentsInChildren<Renderer>(true);
@@ -33,8 +34,12 @@ namespace FlickSort
                 if (item is TrailRenderer || item is SpriteRenderer)
                     continue;
                 var slots = item.sharedMaterials;
-                for (var i = 0; i < slots.Length; i++)
-                    slots[i] = material;
+                // for (var i = 0; i < slots.Length; i++)
+                //     slots[i] = material;    
+                for (var i = 0; i < materialChangeSlots.Length; i++)
+                {
+                    slots[materialChangeSlots[i]] = material[i];
+                }
                 item.sharedMaterials = slots;
             }
 
