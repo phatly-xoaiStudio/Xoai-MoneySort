@@ -30,7 +30,4 @@ namespace FlickSort.UI
             if (_actionButton != null) _actionButton.onClick.RemoveListener(InvokeAction);
         }
     }
-
-    public sealed class LevelUpUI : PopupUI { }
-    public sealed class LoseUI : PopupUI { }
 }

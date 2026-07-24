@@ -17,3 +17,7 @@ MonoBehaviour:
     UI: {fileID: 1640304121948289772, guid: a6a7ee990fc14ac45bd5849add20cb50, type: 3}
   - Name: 0
     UI: {fileID: 2164407546709691370, guid: e1e2fe244354fd148aa2d0d79779a6e0, type: 3}
+  - Name: 2
+    UI: {fileID: 5084892178266618099, guid: 227304f09562ccf4493c40ce85e6e75d, type: 3}
+  - Name: 3
+    UI: {fileID: 4633849238072070796, guid: 7ebe63d7ac701e3458d4436dea297cfc, type: 3}

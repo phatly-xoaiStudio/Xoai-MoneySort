@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FlickSort.Core;
 using FlickSort.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,13 +25,6 @@ namespace FlickSort
         private int _currentLevel;
         private int _mergeProgress;
 
-        public event System.Action<int, int, int> ProgressChanged;
-        public event System.Action<int> LevelUp;
-        public event System.Action LevelLost;
-        public event System.Action DealStarted;
-        public event System.Action ChipMoveLanded;
-        public event System.Action<Vector3> MergeCompleted;
-        public event System.Action InvalidMove;
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
 
@@ -41,6 +35,9 @@ namespace FlickSort
                 ? chipSpawner
                 : throw new MissingReferenceException("FlickSortBoard requires a scene Chip Spawner.");
             _camera = Camera.main;
+            if (_camera == null)
+                throw new MissingReferenceException(
+                    "FlickSortBoard requires a camera tagged MainCamera.");
             _currentLevel = Mathf.Max(1, PlayerPrefs.GetInt("FlickSort.CurrentLevel", 1));
             StartLevel(_currentLevel);
         }
@@ -70,7 +67,7 @@ namespace FlickSort
             _mergeProgress = 0;
             ClearBoard();
             InitializeSceneStacks();
-            ProgressChanged?.Invoke(_currentLevel, 0, _level.requiredMerges);
+            FlickSortEventBus.RaiseProgressChanged(_currentLevel, 0, _level.requiredMerges);
             StartCoroutine(DealRoutine(_level.initialChipCount, false));
         }
 
@@ -105,7 +102,7 @@ namespace FlickSort
             if (!_selected.Model.CanMoveTopGroupTo(stack.Model))
             {
                 stack.InvalidFeedback();
-                InvalidMove?.Invoke();
+                FlickSortEventBus.RaiseInvalidMove();
                 ClearSelection();
                 return;
             }
@@ -134,11 +131,7 @@ namespace FlickSort
                 sequence.Join(tween);
                 sequence.InsertCallback(
                     config.moveDuration + i * config.chipMoveDelay,
-                    () =>
-                    {
-                        Debug.Log("invoke chip move landed");
-                        ChipMoveLanded?.Invoke();
-                    });
+                    FlickSortEventBus.RaiseChipMoveLanded);
             }
             yield return sequence.WaitForCompletion();
             yield return ResolveMerges(destination);
@@ -154,7 +147,7 @@ namespace FlickSort
         {
             _busy = true;
             ClearSelection();
-            DealStarted?.Invoke();
+            FlickSortEventBus.RaiseDealStarted();
             var remaining = Mathf.Min(requestedCount, TotalFreeSlots());
             var sequence = DOTween.Sequence().SetId(this);
             var delay = 0f;
@@ -203,7 +196,7 @@ namespace FlickSort
             if (checkLoss && TotalFreeSlots() == 0)
             {
                 _busy = true;
-                LevelLost?.Invoke();
+                FlickSortEventBus.RaiseLevelLost();
                 yield break;
             }
 
@@ -233,8 +226,11 @@ namespace FlickSort
                 views.Add(resultView);
 
                 _mergeProgress++;
-                ProgressChanged?.Invoke(_currentLevel, _mergeProgress, _level.requiredMerges);
-                MergeCompleted?.Invoke(destination);
+                FlickSortEventBus.RaiseProgressChanged(
+                    _currentLevel,
+                    _mergeProgress,
+                    _level.requiredMerges);
+                FlickSortEventBus.RaiseMergeCompleted(destination);
             }
         }
 
@@ -244,7 +240,7 @@ namespace FlickSort
             _currentLevel++;
             PlayerPrefs.SetInt("FlickSort.CurrentLevel", _currentLevel);
             PlayerPrefs.Save();
-            LevelUp?.Invoke(_currentLevel);
+            FlickSortEventBus.RaiseLevelUp(_currentLevel);
             yield return new WaitForSeconds(1.25f);
             StartLevel(_currentLevel);
         }
