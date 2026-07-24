@@ -1,0 +1,17 @@
+Asset: Wooden Planks
+Source: https://polyhaven.com/a/wooden_planks
+Provider: Poly Haven
+Authors:
+- Charlotte Baglioni — Photography
+- Dario Barresi — Processing
+
+License: Creative Commons Zero (CC0 1.0 / Public Domain)
+License page: https://polyhaven.com/license
+
+Files used:
+- wooden_planks_diff_1k.jpg
+- wooden_planks_nor_gl_1k.jpg
+
+The asset may be used for any purpose, including commercial work. Attribution
+is not required by CC0, but author and source credit are retained in this
+project as a courtesy and for asset provenance.

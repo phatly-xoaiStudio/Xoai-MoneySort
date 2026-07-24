@@ -8,6 +8,7 @@ This file documents the assets currently stored under `Assets/Game`, their role 
 |---|---|
 | `3D/Models/PokerChipGameplay` | Main poker-chip and chip-tray FBX models used by the prototype. |
 | `3D/Materials` | Five URP Lit chip-color materials: red, blue, yellow, purple, and green. |
+| `3D/Textures/PolyHaven_WoodenPlanks` | 1K diffuse and OpenGL normal maps used by the wooden chip tray. |
 | `3D/Source/PokerChipsSource` | Original/source poker-chip FBX retained for reference. |
 | `3D/ThirdParty/Coins` | Optional coin, banknote, gem, and chest model pack. Not required by the poker-chip theme. |
 | `UI/KenneyUIPack` | Kenney UI sprites and Kenney Future fonts. |
@@ -28,6 +29,7 @@ This file documents the assets currently stored under `Assets/Game`, their role 
 
 - `Chip.prefab`: main sortable poker chip prepared for gameplay. It is not currently referenced as a prefab instance by `SampleScene`.
 - `ChipTray.prefab`: tray/container model. `SampleScene` currently references this prefab.
+- `WoodMat`: tray material using the Poly Haven Wooden Planks diffuse and normal textures.
 - `Chip_Red`, `Chip_Blue`, `Chip_Yellow`, `Chip_Purple`, `Chip_Green`: URP materials prepared for chip categories.
 - `Trail_Additive`: lightweight transparent trail material prepared for flick feedback.
 - `BlobShadow.prefab`: low-cost circular shadow prepared for chips.
@@ -46,6 +48,7 @@ All bundled license text files are centralized in `Assets/Game/License`.
 | Kenney Casino Audio | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Casino_Audio_CC0.txt` |
 | Kenney Impact Sounds | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Impact_Sounds_CC0.txt` |
 | Poker chip tray by RandomRust | Creative Commons Attribution-ShareAlike. Attribution and share-alike obligations apply. | `License/LICENSEPokerChipTray.txt` |
+| Poly Haven Wooden Planks | Creative Commons Zero (CC0 1.0). Charlotte Baglioni (photography), Dario Barresi (processing). | `License/PolyHaven_WoodenPlanks_CC0.txt` |
 
 No separate license text file was found inside the imported poker-chip model, Coins, Casual Hit, SimpleFX, or Lana Studio folders. Keep the original store/download receipts and license terms for those assets before distribution. Assets obtained through the Unity Asset Store are generally subject to the Unity Asset Store EULA, but eligibility and redistribution rights must be checked against each asset's original listing.
 
@@ -54,6 +57,7 @@ No separate license text file was found inside the imported poker-chip model, Co
 ```text
 UI and audio assets by Kenney (kenney.nl), licensed CC0.
 Poker chip tray by RandomRust, licensed CC BY-SA.
+Wooden Planks texture by Charlotte Baglioni and Dario Barresi via Poly Haven, licensed CC0.
 ```
 
 ## Notes
