@@ -45,12 +45,16 @@ namespace FlickSort
 
         private void OnLevelUp(int nextLevel)
         {
-            var popup = uiManager.ShowUI(UIEnum.LEVEL_UP_UI, nextLevel);
+            var popup = uiManager.ShowUI(
+                UIEnum.LEVEL_UP_UI,
+                nextLevel,
+                (Action)(() =>
+                {
+                    uiManager.HideUI(UIEnum.LEVEL_UP_UI);
+                    FlickSortEventBus.RaiseLevelUpAcknowledged();
+                }));
             popup.transform.localScale = Vector3.zero;
-            popup.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack)
-                .OnComplete(() => DOVirtual.DelayedCall(
-                    0.75f,
-                    () => uiManager.HideUI(UIEnum.LEVEL_UP_UI)));
+            popup.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack);
         }
 
         private void OnLevelLost()

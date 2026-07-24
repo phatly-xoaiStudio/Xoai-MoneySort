@@ -10,6 +10,9 @@ namespace FlickSort
 {
     public sealed class FlickSortBoard : MonoBehaviour
     {
+        private static readonly int ChipColorCount =
+            System.Enum.GetValues(typeof(ChipColor)).Length;
+
         [SerializeField] private FlickSortGameConfig config;
         [SerializeField] private GameObject chipPrefab;
         private ChipColorConfigSO _colorConfig;
@@ -24,9 +27,23 @@ namespace FlickSort
         private bool _busy;
         private int _currentLevel;
         private int _mergeProgress;
+        private int _maxUnlockedChipLevel;
+        private bool _chipUnlockedThisAction;
+        private bool _levelUpAcknowledged;
 
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
+        public int MaxUnlockedChipLevel => _maxUnlockedChipLevel;
+
+        private void OnEnable()
+        {
+            FlickSortEventBus.LevelUpAcknowledged += OnLevelUpAcknowledged;
+        }
+
+        private void OnDisable()
+        {
+            FlickSortEventBus.LevelUpAcknowledged -= OnLevelUpAcknowledged;
+        }
 
         public void Init(ChipColorConfigSO colorConfig, Transform chipSpawner)
         {
@@ -38,7 +55,11 @@ namespace FlickSort
             if (_camera == null)
                 throw new MissingReferenceException(
                     "FlickSortBoard requires a camera tagged MainCamera.");
-            _currentLevel = Mathf.Max(1, PlayerPrefs.GetInt("FlickSort.CurrentLevel", 1));
+            _currentLevel = 1;
+            _maxUnlockedChipLevel = Mathf.Clamp(
+                config.GetLevel(_currentLevel).colorCount - 1,
+                0,
+                config.maxChipLevel);
             StartLevel(_currentLevel);
         }
 
@@ -65,6 +86,7 @@ namespace FlickSort
             _level = config.GetLevel(_currentLevel);
             _random = new System.Random(_level.randomSeed);
             _mergeProgress = 0;
+            _chipUnlockedThisAction = false;
             ClearBoard();
             InitializeSceneStacks();
             FlickSortEventBus.RaiseProgressChanged(_currentLevel, 0, _level.requiredMerges);
@@ -135,7 +157,7 @@ namespace FlickSort
             }
             yield return sequence.WaitForCompletion();
             yield return ResolveMerges(destination);
-            if (_mergeProgress >= _level.requiredMerges)
+            if (_chipUnlockedThisAction || _mergeProgress >= _level.requiredMerges)
             {
                 yield return LevelUpRoutine();
                 yield break;
@@ -152,6 +174,7 @@ namespace FlickSort
             var sequence = DOTween.Sequence().SetId(this);
             var delay = 0f;
             var safety = 0;
+            var dealtHighestUnlockedChip = false;
 
             while (remaining > 0 && safety++ < 1000)
             {
@@ -164,8 +187,13 @@ namespace FlickSort
                 var amount = Mathf.Min(remaining, Mathf.Min(stack.Model.FreeSlots, _random.Next(range.x, range.y + 1)));
                 for (var i = 0; i < amount; i++)
                 {
-                    int randomColorLevel = _random.Next(0, _level.colorCount);
-                    var token = new ChipToken((ChipColor)randomColorLevel, randomColorLevel);
+                    var randomLevel = dealtHighestUnlockedChip
+                        ? _random.Next(0, _maxUnlockedChipLevel + 1)
+                        : _maxUnlockedChipLevel;
+                    dealtHighestUnlockedChip = true;
+                    var token = new ChipToken(
+                        (ChipColor)(randomLevel % ChipColorCount),
+                        randomLevel);
                     var slot = stack.Model.Count;
                     stack.Model.TryAdd(token);
                     var view = GetChip(token);
@@ -187,7 +215,7 @@ namespace FlickSort
             foreach (var stack in _stacks)
                 yield return ResolveMerges(stack);
 
-            if (_mergeProgress >= _level.requiredMerges)
+            if (_chipUnlockedThisAction || _mergeProgress >= _level.requiredMerges)
             {
                 yield return LevelUpRoutine();
                 yield break;
@@ -225,6 +253,12 @@ namespace FlickSort
                 resultView.transform.DOPunchScale(Vector3.one * 0.18f, 0.28f, 6, 0.5f);
                 views.Add(resultView);
 
+                if (result.Level > _maxUnlockedChipLevel)
+                {
+                    _maxUnlockedChipLevel = result.Level;
+                    _chipUnlockedThisAction = true;
+                }
+
                 _mergeProgress++;
                 FlickSortEventBus.RaiseProgressChanged(
                     _currentLevel,
@@ -238,12 +272,23 @@ namespace FlickSort
         {
             _busy = true;
             _currentLevel++;
-            PlayerPrefs.SetInt("FlickSort.CurrentLevel", _currentLevel);
-            PlayerPrefs.Save();
+            _level = config.GetLevel(_currentLevel);
+            _random = new System.Random(_level.randomSeed);
+            _mergeProgress = 0;
+            _chipUnlockedThisAction = false;
+            FlickSortEventBus.RaiseProgressChanged(
+                _currentLevel,
+                _mergeProgress,
+                _level.requiredMerges);
+
+            _levelUpAcknowledged = false;
             FlickSortEventBus.RaiseLevelUp(_currentLevel);
-            yield return new WaitForSeconds(1.25f);
-            StartLevel(_currentLevel);
+            yield return new WaitUntil(() => _levelUpAcknowledged);
+
+            _busy = false;
         }
+
+        private void OnLevelUpAcknowledged() => _levelUpAcknowledged = true;
 
         private void InitializeSceneStacks()
         {
