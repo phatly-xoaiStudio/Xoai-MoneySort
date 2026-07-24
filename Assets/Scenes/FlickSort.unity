@@ -485,6 +485,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1000000000000000000000000000003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.FlickSortFeedbackManager
+  mergeBurstPrefab: {fileID: 8343233060648734766, guid: 81ca89c5266332145837589df2951052, type: 3}
+  mergeBurstLifetime: 1.2
 --- !u!1 &516804498
 GameObject:
   m_ObjectHideFlags: 0

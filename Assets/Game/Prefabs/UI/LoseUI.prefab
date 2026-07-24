@@ -286,6 +286,7 @@ GameObject:
   - component: {fileID: 1344956394868308985}
   - component: {fileID: 6737587931415953328}
   - component: {fileID: 8979457895515296056}
+  - component: {fileID: 9100000000000000002}
   m_Layer: 5
   m_Name: RetryButton
   m_TagString: Untagged
@@ -395,6 +396,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &9100000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059192743116807789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4000000000000000000000000000001, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.ButtonScaleAnimation
+  target: {fileID: 7900822461101123561}
+  pressedScale: {x: 0.9, y: 0.9, z: 1}
+  pressDuration: 0.08
+  pressEase: 6
+  releaseDuration: 0.12
+  releaseEase: 27
+  useUnscaledTime: 1
 --- !u!1 &5608906190006506430
 GameObject:
   m_ObjectHideFlags: 0

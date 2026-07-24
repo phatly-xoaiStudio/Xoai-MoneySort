@@ -37,6 +37,8 @@ namespace FlickSort.Editor
             EnsureAnimation(LevelUpPrefabPath);
             EnsureAnimation(LosePrefabPath);
             EnsureAnimation(GameplayPrefabPath);
+            EnsureButtonAnimation(GameplayPrefabPath, "Button");
+            EnsureButtonAnimation(LosePrefabPath, "RetryButton");
             levelUp = AssetDatabase.LoadAssetAtPath<GameObject>(LevelUpPrefabPath).GetComponent<LevelUpUI>();
             lose = AssetDatabase.LoadAssetAtPath<GameObject>(LosePrefabPath).GetComponent<LoseUI>();
             Register(UIEnum.LEVEL_UP_UI, levelUp);
@@ -61,7 +63,47 @@ namespace FlickSort.Editor
             EnsureAnimation(LevelUpPrefabPath);
             EnsureAnimation(LosePrefabPath);
             EnsureAnimation(GameplayPrefabPath);
+            EnsureButtonAnimation(GameplayPrefabPath, "Button");
+            EnsureButtonAnimation(LosePrefabPath, "RetryButton");
             AssetDatabase.SaveAssets();
+        }
+
+        private static void EnsureButtonAnimation(string prefabPath, string buttonName)
+        {
+            var root = PrefabUtility.LoadPrefabContents(prefabPath);
+            var changed = false;
+            Button targetButton = null;
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+            {
+                if (button.name == buttonName)
+                {
+                    targetButton = button;
+                    break;
+                }
+            }
+
+            if (targetButton != null)
+            {
+                var animation = targetButton.GetComponent<ButtonScaleAnimation>();
+                if (animation == null)
+                {
+                    animation = targetButton.gameObject.AddComponent<ButtonScaleAnimation>();
+                    changed = true;
+                }
+
+                var serialized = new SerializedObject(animation);
+                var targetProperty = serialized.FindProperty("target");
+                if (targetProperty.objectReferenceValue != targetButton.transform)
+                {
+                    targetProperty.objectReferenceValue = targetButton.transform;
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    changed = true;
+                }
+            }
+
+            if (changed)
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            PrefabUtility.UnloadPrefabContents(root);
         }
 
         private static void EnsureAnimation(string prefabPath)
