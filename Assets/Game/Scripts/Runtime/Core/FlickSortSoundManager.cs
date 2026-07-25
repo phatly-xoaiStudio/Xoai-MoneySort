@@ -11,6 +11,15 @@ namespace FlickSort
         [SerializeField] private AudioClip mergeSound;
         [SerializeField] private AudioClip dealSound;
         [SerializeField] private AudioClip progressStarSound;
+        [SerializeField] private AudioClip levelUpSound;
+        [SerializeField] private AudioClip loseSound;
+
+        [Header("Background music")]
+        [SerializeField] private AudioSource musicSource;
+        [SerializeField] private AudioClip backgroundMusic;
+        [SerializeField, Range(0f, 1f)] private float musicVolume = 0.28f;
+        [SerializeField, Range(0f, 1f)] private float levelUpSoundVolume = 0.75f;
+        [SerializeField, Range(0f, 1f)] private float loseSoundVolume = 0.8f;
 
         [Header("Move cadence")]
         [SerializeField, Min(0f)] private float moveSoundMinInterval = 0.06f;
@@ -30,6 +39,7 @@ namespace FlickSort
         {
             _sfxSource = GetComponent<AudioSource>();
             _sfxSource.playOnAwake = false;
+            ConfigureMusicSource();
         }
 
         private void OnEnable()
@@ -39,6 +49,9 @@ namespace FlickSort
             FlickSortEventBus.ProgressStarLanded += PlayProgressStarSound;
             FlickSortEventBus.InvalidMove += PlayInvalidMoveSound;
             FlickSortEventBus.MergeCompleted += PlayMergeSound;
+            FlickSortEventBus.LevelUp += PlayLevelUpSound;
+            FlickSortEventBus.LevelLost += PlayLoseSound;
+            PlayBackgroundMusic();
         }
 
         private void OnDisable()
@@ -48,6 +61,8 @@ namespace FlickSort
             FlickSortEventBus.ProgressStarLanded -= PlayProgressStarSound;
             FlickSortEventBus.InvalidMove -= PlayInvalidMoveSound;
             FlickSortEventBus.MergeCompleted -= PlayMergeSound;
+            FlickSortEventBus.LevelUp -= PlayLevelUpSound;
+            FlickSortEventBus.LevelLost -= PlayLoseSound;
         }
 
         private void PlayDealSound() => PlayOneShot(dealSound, 0.6f);
@@ -55,6 +70,40 @@ namespace FlickSort
         private void PlayInvalidMoveSound() => PlayOneShot(moveSound, 0.35f);
 
         private void PlayMergeSound(Vector3 _) => PlayOneShot(mergeSound, 0.9f);
+
+        private void PlayLevelUpSound(int _, int __) =>
+            PlayOneShot(levelUpSound, levelUpSoundVolume);
+
+        private void PlayLoseSound() => PlayOneShot(loseSound, loseSoundVolume);
+
+        private void ConfigureMusicSource()
+        {
+            if (musicSource == null)
+            {
+                Debug.LogError(
+                    $"{nameof(FlickSortSoundManager)} requires an authored Music AudioSource.",
+                    this);
+                return;
+            }
+
+            musicSource.playOnAwake = false;
+            musicSource.loop = true;
+            musicSource.spatialBlend = 0f;
+            musicSource.volume = musicVolume;
+            musicSource.clip = backgroundMusic;
+        }
+
+        private void PlayBackgroundMusic()
+        {
+            if (musicSource == null || backgroundMusic == null || musicSource.isPlaying)
+                return;
+
+            if (musicSource.clip != backgroundMusic)
+                musicSource.clip = backgroundMusic;
+            musicSource.volume = musicVolume;
+            musicSource.loop = true;
+            musicSource.Play();
+        }
 
         private void PlayMoveSound()
         {

@@ -1,0 +1,23 @@
+Assets:
+
+1. Las Vegas - Las Vegas Casino Music
+   Local file: Assets/Game/Sound/Pixabay/LasVegasCasinoMusic_MFCC_385955.mp3
+   Creator: MFCC
+   Source: https://pixabay.com/music/funk-las-vegas-las-vegas-casino-music-385955/
+
+2. Winner game sound.
+   Local file: Assets/Game/Sound/Pixabay/WinnerGameSound_PuyoPuyoMegaFan1234_404167.mp3
+   Creator: PuyoPuyoMegaFan1234
+   Source: https://pixabay.com/sound-effects/film-special-effects-winner-game-sound-404167/
+
+3. Game Over 39
+   Local file: Assets/Game/Sound/Pixabay/GameOver39_TuomasData_199830.mp3
+   Creator: Tuomas_Data
+   Source: https://pixabay.com/sound-effects/musical-game-over-39-199830/
+
+License:
+Pixabay Content License
+https://pixabay.com/service/license-summary/
+
+The files were supplied by the project owner. This document records their
+Pixabay source pages, creators and applicable license for distribution tracking.

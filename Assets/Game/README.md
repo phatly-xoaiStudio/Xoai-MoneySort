@@ -48,6 +48,7 @@ All bundled license text files are centralized in `Assets/Game/License`.
 | Kenney Casino Audio | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Casino_Audio_CC0.txt` |
 | Kenney Impact Sounds | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Impact_Sounds_CC0.txt` |
 | Collect Points sound effect by LIECIO | Pixabay Content License. Credit: `Sound Effect by LIECIO from Pixabay`. | `License/Pixabay_LIECIO_CollectPoints.txt` |
+| Casino BGM and game-state sounds | Pixabay Content License. BGM by MFCC, level-up sound by PuyoPuyoMegaFan1234, and lose sound by Tuomas_Data. | `License/Pixabay_CasinoAudio.txt` |
 | Sunbursts / 2D Rays by simranzenov | Creative Commons Zero (CC0 1.0). The transparent yellow sunburst is used behind the newly unlocked 3D chip. | `License/OpenGameArt_Sunbursts_CC0.txt` |
 | Felt Backgrounds by jbp4444 | Creative Commons Zero (CC0 1.0). The green felt scan is used as the world-space poker background behind the 3D tray. | `License/OpenGameArt_FeltBackgrounds_CC0.txt` |
 | Poker chip tray by RandomRust | Creative Commons Attribution-ShareAlike. Attribution and share-alike obligations apply. | `License/LICENSEPokerChipTray.txt` |
@@ -60,6 +61,7 @@ No separate license text file was found inside the imported poker-chip model, Co
 ```text
 UI and audio assets by Kenney (kenney.nl), licensed CC0.
 Sound Effect by LIECIO from Pixabay.
+Casino BGM by MFCC; level-up sound by PuyoPuyoMegaFan1234; game-over sound by Tuomas_Data, all from Pixabay.
 Sunburst effect by simranzenov via OpenGameArt, licensed CC0.
 Green felt background by jbp4444 via OpenGameArt, licensed CC0.
 Poker chip tray by RandomRust, licensed CC BY-SA.
