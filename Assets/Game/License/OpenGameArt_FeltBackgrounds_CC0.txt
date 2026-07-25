@@ -1,0 +1,17 @@
+Asset: Felt Backgrounds
+Local file: Assets/Game/Sprite/Background/felt_green.jpg
+Creator: jbp4444
+Source: OpenGameArt.org
+
+Asset page:
+https://opengameart.org/content/felt-backgrounds
+
+Original archive:
+https://opengameart.org/sites/default/files/felt.tar.gz
+
+License:
+Creative Commons Zero (CC0 1.0)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+The source describes these images as public-domain scans of felt.
+Attribution is not required, but this record is retained for source tracking.
