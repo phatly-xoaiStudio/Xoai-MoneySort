@@ -1,0 +1,17 @@
+Asset: Sunbursts / 2D Rays
+Local file: Assets/Game/Sprite/VFX/sunburst_yellowtransparent.png
+Creator: simranzenov
+Source: OpenGameArt.org
+
+Asset page:
+https://opengameart.org/content/sunbursts-2d-rays
+
+Original file:
+https://opengameart.org/sites/default/files/sunburst_yellowtransparent_0.png
+
+License:
+Creative Commons Zero (CC0 1.0)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+The author states: "Feel free to use however you wish. No attribution needed."
+Credit is retained in this project for source tracking.

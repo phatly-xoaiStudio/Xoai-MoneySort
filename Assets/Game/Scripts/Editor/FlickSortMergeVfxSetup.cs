@@ -15,7 +15,7 @@ namespace FlickSort.Editor
         private const string PrefabPath = "Assets/Game/Prefabs/VFX/MergeBurst.prefab";
         private const string MaterialPath = "Assets/Game/VFX/FlickSort/Materials/MergeBurst.mat";
         private const string ScenePath = "Assets/Scenes/FlickSort.unity";
-        private const string MarkerPath = "Assets/Game/.merge-vfx-setup-v2";
+        private const string MarkerPath = "Assets/Game/.merge-vfx-setup-v3";
 
         static FlickSortMergeVfxSetup()
         {
@@ -44,7 +44,7 @@ namespace FlickSort.Editor
             var material = CreateMaterial();
             var prefab = CreatePrefab(material);
             WireScene(prefab.GetComponent<ParticleSystem>());
-            File.WriteAllText(MarkerPath, "Merge VFX prefab setup version 2.\n");
+            File.WriteAllText(MarkerPath, "Merge firework VFX prefab setup version 3.\n");
             AssetDatabase.ImportAsset(MarkerPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -99,23 +99,54 @@ namespace FlickSort.Editor
 
             var main = particles.main;
             main.playOnAwake = false;
-            main.duration = 0.25f;
+            main.duration = 0.15f;
             main.loop = false;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.48f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(1.4f, 2.8f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.18f);
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.75f, 1.15f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(2.1f, 3.8f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.07f, 0.16f);
             main.startColor = new ParticleSystem.MinMaxGradient(
                 new Color(1f, 0.72f, 0.05f),
                 Color.white);
+            main.gravityModifier = new ParticleSystem.MinMaxCurve(1.45f, 2.1f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.maxParticles = 24;
+            main.maxParticles = 40;
 
             var emission = particles.emission;
-            emission.rateOverTime = 72f;
+            emission.rateOverTime = 0f;
+            emission.SetBursts(new[]
+            {
+                new ParticleSystem.Burst(0f, 30)
+            });
 
             var shape = particles.shape;
             shape.shapeType = ParticleSystemShapeType.Circle;
-            shape.radius = 0.25f;
+            shape.radius = 0.08f;
+
+            var colorOverLifetime = particles.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            var alpha = new Gradient();
+            alpha.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f),
+                    new GradientColorKey(new Color(1f, 0.45f, 0.05f), 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(1f, 0.55f),
+                    new GradientAlphaKey(0f, 1f)
+                });
+            colorOverLifetime.color = alpha;
+
+            var sizeOverLifetime = particles.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(
+                1f,
+                new AnimationCurve(
+                    new Keyframe(0f, 0.35f),
+                    new Keyframe(0.12f, 1f),
+                    new Keyframe(1f, 0f)));
 
             var renderer = particles.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;

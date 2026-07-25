@@ -35,6 +35,12 @@ namespace FlickSort
         public int CurrentLevel => _currentLevel;
         public int MaxUnlockedChipLevel => _maxUnlockedChipLevel;
 
+        public Material GetChipMaterial(int chipLevel)
+        {
+            var chipColor = (ChipColor)(Mathf.Max(0, chipLevel) % ChipColorCount);
+            return _colorConfig != null ? _colorConfig.GetColor(chipColor) : null;
+        }
+
         private void OnEnable()
         {
             FlickSortEventBus.LevelUpAcknowledged += OnLevelUpAcknowledged;
@@ -271,6 +277,9 @@ namespace FlickSort
         private IEnumerator LevelUpRoutine()
         {
             _busy = true;
+            var unlockedChipLevel = _chipUnlockedThisAction
+                ? _maxUnlockedChipLevel
+                : -1;
             _currentLevel++;
             _level = config.GetLevel(_currentLevel);
             _random = new System.Random(_level.randomSeed);
@@ -282,7 +291,7 @@ namespace FlickSort
                 _level.requiredMerges);
 
             _levelUpAcknowledged = false;
-            FlickSortEventBus.RaiseLevelUp(_currentLevel);
+            FlickSortEventBus.RaiseLevelUp(_currentLevel, unlockedChipLevel);
             yield return new WaitUntil(() => _levelUpAcknowledged);
 
             _busy = false;

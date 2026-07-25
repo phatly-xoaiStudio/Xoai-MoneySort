@@ -16,6 +16,9 @@ namespace FlickSort.Editor
         private const string LosePrefabPath = "Assets/Game/Prefabs/UI/LoseUI.prefab";
         private const string GameplayPrefabPath = "Assets/Game/Prefabs/UI/GameplayUI.prefab";
         private const string DefinitionPath = "Assets/Game/Data/UIDefinitionSO.asset";
+        private const string ChipPrefabPath = "Assets/Game/Prefabs/Gameplay/Chip.prefab";
+        private const string SunburstSpritePath = "Assets/Game/Sprite/VFX/sunburst_yellowtransparent.png";
+        private const string RewardRenderTexturePath = "Assets/Game/VFX/FlickSort/RewardChipPreview.renderTexture";
         private const string FontGuid = "3577af8a805888344b4b32e2be5e8e9b";
 
         static FlickSortPopupUISetup()
@@ -154,22 +157,206 @@ namespace FlickSort.Editor
 
         private static LevelUpUI BuildLevelUpPrefab()
         {
+            PrepareSunburstSprite();
+            var chipPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ChipPrefabPath);
+            var sunburstSprite = AssetDatabase.LoadAssetAtPath<Sprite>(SunburstSpritePath);
+            var previewTexture = GetOrCreateRewardRenderTexture();
+            if (chipPrefab == null)
+                throw new MissingReferenceException($"Chip prefab was not found at {ChipPrefabPath}.");
+            if (sunburstSprite == null)
+                throw new MissingReferenceException(
+                    $"Sunburst sprite was not found or is not imported as Sprite at {SunburstSpritePath}.");
+
             var root = CreateOverlay("LevelUpUI");
             var card = CreateImage("Card", root.transform, new Color(1f, 0.62f, 0.08f, 1f));
             SetRect(card.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                Vector2.zero, new Vector2(720f, 280f));
+                Vector2.zero, new Vector2(720f, 760f));
 
             var title = CreateText("Title", card.transform, "LEVEL 2!", 72f);
             title.color = Color.white;
             title.fontStyle = FontStyles.Bold;
-            SetStretch(title.rectTransform, new Vector2(55f, 40f), new Vector2(-55f, -40f));
+            SetRect(title.rectTransform, new Vector2(0.5f, 0.86f), new Vector2(0.5f, 0.86f),
+                Vector2.zero, new Vector2(620f, 130f));
+
+            var confirmIndicator = CreateText(
+                "ConfirmIndicator",
+                card.transform,
+                "Tap anywhere to continue",
+                48f);
+            confirmIndicator.color = Color.white;
+            SetRect(
+                confirmIndicator.rectTransform,
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, 85f),
+                new Vector2(620f, 100f));
+
+            var rewardRoot = new GameObject("UnlockReward", typeof(RectTransform));
+            rewardRoot.layer = LayerMask.NameToLayer("UI");
+            rewardRoot.transform.SetParent(card.transform, false);
+            SetRect(
+                rewardRoot.GetComponent<RectTransform>(),
+                new Vector2(0.5f, 0.43f),
+                new Vector2(0.5f, 0.43f),
+                Vector2.zero,
+                new Vector2(600f, 480f));
+
+            var rotatingGlow = new GameObject("RotatingGlow", typeof(RectTransform));
+            rotatingGlow.layer = LayerMask.NameToLayer("UI");
+            rotatingGlow.transform.SetParent(rewardRoot.transform, false);
+            SetRect(
+                rotatingGlow.GetComponent<RectTransform>(),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(500f, 500f));
+            var sunburst = CreateImage("Sunburst", rotatingGlow.transform, new Color(1f, 1f, 1f, 0.78f));
+            sunburst.sprite = sunburstSprite;
+            sunburst.type = Image.Type.Simple;
+            sunburst.preserveAspect = true;
+            SetStretch(sunburst.rectTransform, Vector2.zero, Vector2.zero);
+
+            var previewImageObject = new GameObject(
+                "Chip3DPreview",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(RawImage));
+            previewImageObject.layer = LayerMask.NameToLayer("UI");
+            previewImageObject.transform.SetParent(rewardRoot.transform, false);
+            var previewImage = previewImageObject.GetComponent<RawImage>();
+            previewImage.texture = previewTexture;
+            previewImage.color = Color.white;
+            previewImage.raycastTarget = false;
+            SetRect(
+                previewImage.rectTransform,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(330f, 330f));
+
+            var previewStage = new GameObject("RewardPreviewStage");
+            previewStage.layer = 31;
+            previewStage.transform.SetParent(rewardRoot.transform, false);
+            previewStage.transform.position = new Vector3(5000f, 5000f, 5000f);
+
+            var chipPivot = new GameObject("ChipTilt").transform;
+            chipPivot.gameObject.layer = 31;
+            chipPivot.SetParent(previewStage.transform, false);
+            chipPivot.localRotation = Quaternion.Euler(18f, 0f, 0f);
+
+            var chipInstance = (GameObject)PrefabUtility.InstantiatePrefab(chipPrefab, chipPivot);
+            chipInstance.name = "UnlockedChip3D";
+            chipInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            SetLayerRecursively(chipInstance, 31);
+            var chipView = chipInstance.GetComponent<ChipView>();
+
+            var cameraObject = new GameObject("RewardPreviewCamera", typeof(Camera));
+            cameraObject.layer = 31;
+            cameraObject.transform.SetParent(previewStage.transform, false);
+            var previewCamera = cameraObject.GetComponent<Camera>();
+            previewCamera.clearFlags = CameraClearFlags.SolidColor;
+            previewCamera.backgroundColor = new Color(0f, 0f, 0f, 0f);
+            previewCamera.cullingMask = 1 << 31;
+            previewCamera.targetTexture = previewTexture;
+            previewCamera.allowHDR = false;
+            previewCamera.allowMSAA = true;
+            previewCamera.orthographic = true;
+            FramePreviewCamera(previewCamera, chipInstance.GetComponentsInChildren<Renderer>(true));
 
             var view = root.AddComponent<LevelUpUI>();
-            SetReference(view, "_titleText", title);
+            SetReference(view, "_levelText", title);
+            SetReference(view, "_unlockRewardRoot", rewardRoot);
+            SetReference(view, "_rotatingGlow", rotatingGlow.GetComponent<RectTransform>());
+            SetReference(view, "_chipPreviewImage", previewImage);
+            SetReference(view, "_chipPreviewCamera", previewCamera);
+            SetReference(view, "_unlockChipPivot", chipPivot);
+            SetReference(view, "_unlockChipView", chipView);
+            SetReference(view, "_confirmIndicator", confirmIndicator);
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, LevelUpPrefabPath);
             Object.DestroyImmediate(root);
             return prefab.GetComponent<LevelUpUI>();
         }
+
+        private static void PrepareSunburstSprite()
+        {
+            if (AssetImporter.GetAtPath(SunburstSpritePath) is not TextureImporter importer)
+                return;
+
+            var changed =
+                importer.textureType != TextureImporterType.Sprite ||
+                !importer.alphaIsTransparency ||
+                importer.mipmapEnabled;
+            if (!changed)
+                return;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.SaveAndReimport();
+        }
+
+        private static RenderTexture GetOrCreateRewardRenderTexture()
+        {
+            var texture = AssetDatabase.LoadAssetAtPath<RenderTexture>(RewardRenderTexturePath);
+            if (texture == null)
+            {
+                texture = new RenderTexture(512, 512, 24, RenderTextureFormat.ARGB32)
+                {
+                    name = "RewardChipPreview",
+                    antiAliasing = 4,
+                    useMipMap = false,
+                    autoGenerateMips = false,
+                    filterMode = FilterMode.Bilinear
+                };
+                AssetDatabase.CreateAsset(texture, RewardRenderTexturePath);
+            }
+
+            return texture;
+        }
+
+        private static void FramePreviewCamera(Camera camera, Renderer[] renderers)
+        {
+            if (renderers == null || renderers.Length == 0)
+                return;
+
+            var bounds = renderers[0].bounds;
+            for (var i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            var largestExtent = Mathf.Max(bounds.extents.x, bounds.extents.y);
+            camera.orthographicSize = Mathf.Max(0.1f, largestExtent * 1.45f);
+            camera.transform.position = new Vector3(
+                bounds.center.x,
+                bounds.center.y,
+                bounds.min.z - Mathf.Max(2f, bounds.size.z * 3f));
+            camera.transform.rotation = Quaternion.identity;
+            camera.nearClipPlane = 0.01f;
+            camera.farClipPlane = Mathf.Max(10f, bounds.size.z * 8f);
+        }
+
+        private static void SetLayerRecursively(GameObject root, int layer)
+        {
+            root.layer = layer;
+            foreach (Transform child in root.transform)
+            {
+                SetLayerRecursively(child.gameObject, layer);
+            }
+        }
+
+        // private static bool HasLevelUpReward(GameObject prefab)
+        // {
+        //     var view = prefab != null ? prefab.GetComponent<LevelUpUI>() : null;
+        //     if (view == null)
+        //         return false;
+        //
+        //     var serialized = new SerializedObject(view);
+        //     return serialized.FindProperty("_unlockRewardRoot").objectReferenceValue != null &&
+        //            serialized.FindProperty("_rotatingGlow").objectReferenceValue != null &&
+        //            serialized.FindProperty("_chipPreviewCamera").objectReferenceValue != null &&
+        //            serialized.FindProperty("_unlockChipView").objectReferenceValue != null &&
+        //            serialized.FindProperty("_confirmIndicator").objectReferenceValue != null;
+        // }
 
         private static LoseUI BuildLosePrefab()
         {

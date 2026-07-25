@@ -11,7 +11,7 @@ namespace FlickSort.Core
         public static event Action RequestNextLevel;
         public static event Action<bool> PauseChanged;
         public static event Action<int, int, int> ProgressChanged;
-        public static event Action<int> LevelUp;
+        public static event Action<int, int> LevelUp;
         public static event Action LevelUpAcknowledged;
         public static event Action LevelLost;
         public static event Action DealStarted;
@@ -26,7 +26,9 @@ namespace FlickSort.Core
         public static void RaisePauseChanged(bool isPaused) => PauseChanged?.Invoke(isPaused);
         public static void RaiseProgressChanged(int level, int current, int required) =>
             ProgressChanged?.Invoke(level, current, required);
-        public static void RaiseLevelUp(int nextLevel) => LevelUp?.Invoke(nextLevel);
+        /// <param name="unlockedChipLevel">New chip level, or -1 for a regular level-up.</param>
+        public static void RaiseLevelUp(int nextLevel, int unlockedChipLevel) =>
+            LevelUp?.Invoke(nextLevel, unlockedChipLevel);
         public static void RaiseLevelUpAcknowledged() => LevelUpAcknowledged?.Invoke();
         public static void RaiseLevelLost() => LevelLost?.Invoke();
         public static void RaiseDealStarted() => DealStarted?.Invoke();

@@ -48,6 +48,7 @@ All bundled license text files are centralized in `Assets/Game/License`.
 | Kenney Casino Audio | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Casino_Audio_CC0.txt` |
 | Kenney Impact Sounds | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Impact_Sounds_CC0.txt` |
 | Collect Points sound effect by LIECIO | Pixabay Content License. Credit: `Sound Effect by LIECIO from Pixabay`. | `License/Pixabay_LIECIO_CollectPoints.txt` |
+| Sunbursts / 2D Rays by simranzenov | Creative Commons Zero (CC0 1.0). The transparent yellow sunburst is used behind the newly unlocked 3D chip. | `License/OpenGameArt_Sunbursts_CC0.txt` |
 | Poker chip tray by RandomRust | Creative Commons Attribution-ShareAlike. Attribution and share-alike obligations apply. | `License/LICENSEPokerChipTray.txt` |
 | Poly Haven Wooden Planks | Creative Commons Zero (CC0 1.0). Charlotte Baglioni (photography), Dario Barresi (processing). | `License/PolyHaven_WoodenPlanks_CC0.txt` |
 
@@ -58,6 +59,7 @@ No separate license text file was found inside the imported poker-chip model, Co
 ```text
 UI and audio assets by Kenney (kenney.nl), licensed CC0.
 Sound Effect by LIECIO from Pixabay.
+Sunburst effect by simranzenov via OpenGameArt, licensed CC0.
 Poker chip tray by RandomRust, licensed CC BY-SA.
 Wooden Planks texture by Charlotte Baglioni and Dario Barresi via Poly Haven, licensed CC0.
 ```

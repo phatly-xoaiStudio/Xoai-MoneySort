@@ -286,7 +286,7 @@ GameObject:
   - component: {fileID: 1344956394868308985}
   - component: {fileID: 6737587931415953328}
   - component: {fileID: 8979457895515296056}
-  - component: {fileID: 9100000000000000002}
+  - component: {fileID: 7408561253609689348}
   m_Layer: 5
   m_Name: RetryButton
   m_TagString: Untagged
@@ -396,7 +396,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &9100000000000000002
+--- !u!114 &7408561253609689348
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4000000000000000000000000000001, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.ButtonScaleAnimation
   target: {fileID: 7900822461101123561}
   pressedScale: {x: 0.9, y: 0.9, z: 1}
@@ -504,8 +504,8 @@ GameObject:
   - component: {fileID: 5925901765339143002}
   - component: {fileID: 6968180511026697567}
   - component: {fileID: 4633849238072070796}
-  - component: {fileID: 9000000000000000003}
-  - component: {fileID: 9000000000000000004}
+  - component: {fileID: 4447672355514448169}
+  - component: {fileID: 2003500279798407424}
   m_Layer: 5
   m_Name: LoseUI
   m_TagString: Untagged
@@ -583,10 +583,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2000000000000000000000000000002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.LoseUI
-  _animation: {fileID: 9000000000000000004}
+  _animation: {fileID: 2003500279798407424}
   _titleText: {fileID: 26664873691404695}
   _retryButton: {fileID: 8979457895515296056}
---- !u!225 &9000000000000000003
+--- !u!225 &4447672355514448169
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -598,7 +598,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &9000000000000000004
+--- !u!114 &2003500279798407424
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -608,7 +608,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3000000000000000000000000000002, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.ScaleFadeUIAnimation
   showDuration: 0.3
   showEase: 27
@@ -616,7 +616,7 @@ MonoBehaviour:
   hideEase: 26
   useUnscaledTime: 1
   target: {fileID: 8816717463927523328}
-  canvasGroup: {fileID: 9000000000000000003}
+  canvasGroup: {fileID: 4447672355514448169}
   hiddenScale: {x: 0.82, y: 0.82, z: 1}
   shownScale: {x: 1, y: 1, z: 1}
   hiddenAlpha: 0

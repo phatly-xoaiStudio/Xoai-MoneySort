@@ -42,11 +42,16 @@ namespace FlickSort
             _gameplayUI?.SetProgress(level, current, required);
         }
 
-        private void OnLevelUp(int nextLevel)
+        private void OnLevelUp(int nextLevel, int unlockedChipLevel)
         {
+            var unlockedChipMaterial = unlockedChipLevel >= 0
+                ? board.GetChipMaterial(unlockedChipLevel)
+                : null;
             uiManager.ShowUI(
                 UIEnum.LEVEL_UP_UI,
                 nextLevel,
+                unlockedChipLevel,
+                unlockedChipMaterial,
                 (Action)(() =>
                 {
                     uiManager.HideUI(UIEnum.LEVEL_UP_UI);
