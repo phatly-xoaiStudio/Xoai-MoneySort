@@ -6,9 +6,12 @@ namespace FlickSort
     [RequireComponent(typeof(BoxCollider))]
     public sealed class ChipStackView : MonoBehaviour
     {
+        [SerializeField] private GameObject _blockPanel;
+
         public int Index { get; private set; }
         public ChipStackModel Model { get; private set; }
         public Transform ChipRoot { get; private set; }
+        public bool IsAvailable { get; private set; }
         private BoxCollider _slotBounds;
 
         public void Initialize(int index, ChipStackModel model)
@@ -25,6 +28,19 @@ namespace FlickSort
                     throw new MissingReferenceException(
                         $"{nameof(ChipStackView)} '{name}' requires an authored Chips child.");
             }
+
+            if (_blockPanel == null)
+                throw new MissingReferenceException(
+                    $"{nameof(ChipStackView)} '{name}' requires an authored BlockPanel reference.");
+        }
+
+        public void SetAvailable(bool available)
+        {
+            IsAvailable = available;
+            _blockPanel.SetActive(!available);
+
+            if (!available)
+                SetSelected(false);
         }
 
         public Vector3 GetWorldSlot(int index, float spacing)

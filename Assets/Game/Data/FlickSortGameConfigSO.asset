@@ -26,7 +26,7 @@ MonoBehaviour:
   jumpPower: 0.75
   levels:
   - levelNumber: 1
-    openedStackCount: 20
+    openedStackCount: 12
     colorCount: 4
     initialChipCount: 24
     dealChipCount: 10
@@ -34,7 +34,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1810
   - levelNumber: 2
-    openedStackCount: 20
+    openedStackCount: 13
     colorCount: 5
     initialChipCount: 26
     dealChipCount: 9
@@ -42,7 +42,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1911
   - levelNumber: 3
-    openedStackCount: 20
+    openedStackCount: 14
     colorCount: 6
     initialChipCount: 28
     dealChipCount: 10
@@ -50,7 +50,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 2012
   - levelNumber: 4
-    openedStackCount: 20
+    openedStackCount: 15
     colorCount: 7
     initialChipCount: 30
     dealChipCount: 11
@@ -58,7 +58,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 2113
   - levelNumber: 5
-    openedStackCount: 20
+    openedStackCount: 16
     colorCount: 8
     initialChipCount: 32
     dealChipCount: 12
@@ -66,7 +66,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2214
   - levelNumber: 6
-    openedStackCount: 20
+    openedStackCount: 17
     colorCount: 9
     initialChipCount: 34
     dealChipCount: 13
@@ -74,7 +74,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2315
   - levelNumber: 7
-    openedStackCount: 20
+    openedStackCount: 18
     colorCount: 10
     initialChipCount: 36
     dealChipCount: 20
@@ -82,7 +82,7 @@ MonoBehaviour:
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2416
   - levelNumber: 8
-    openedStackCount: 20
+    openedStackCount: 19
     colorCount: 10
     initialChipCount: 38
     dealChipCount: 25

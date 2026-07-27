@@ -79,7 +79,7 @@ namespace FlickSort
                 return;
             
             var stack = hit.collider.GetComponentInParent<ChipStackView>();
-            if (stack != null)
+            if (stack != null && stack.IsAvailable)
                 HandleStackTap(stack);
         }
 
@@ -109,6 +109,9 @@ namespace FlickSort
 
         private void HandleStackTap(ChipStackView stack)
         {
+            if (!stack.IsAvailable)
+                return;
+
             if (_selected == null)
             {
                 if (stack.Model.Count == 0)
@@ -184,7 +187,8 @@ namespace FlickSort
 
             while (remaining > 0 && safety++ < 1000)
             {
-                var available = _stacks.FindAll(item => item.Model.FreeSlots > 0);
+                var available = _stacks.FindAll(
+                    item => item.IsAvailable && item.Model.FreeSlots > 0);
                 if (available.Count == 0)
                     break;
 
@@ -219,7 +223,10 @@ namespace FlickSort
 
             yield return sequence.WaitForCompletion();
             foreach (var stack in _stacks)
-                yield return ResolveMerges(stack);
+            {
+                if (stack.IsAvailable)
+                    yield return ResolveMerges(stack);
+            }
 
             if (_chipUnlockedThisAction || _mergeProgress >= _level.requiredMerges)
             {
@@ -283,6 +290,7 @@ namespace FlickSort
             _currentLevel++;
             _level = config.GetLevel(_currentLevel);
             _random = new System.Random(_level.randomSeed);
+            ApplyStackAvailability();
             _mergeProgress = 0;
             _chipUnlockedThisAction = false;
             FlickSortEventBus.RaiseProgressChanged(
@@ -312,6 +320,25 @@ namespace FlickSort
 
                 stack.Initialize(i, new ChipStackModel(config.stackCapacity));
                 _views.Add(stack, new List<ChipView>());
+            }
+
+            ApplyStackAvailability();
+        }
+
+        private void ApplyStackAvailability()
+        {
+            var openedStackCount = Mathf.Clamp(
+                _level.openedStackCount,
+                0,
+                _stacks.Count);
+
+            for (var i = 0; i < _stacks.Count; i++)
+            {
+                var stack = _stacks[i];
+                if (stack == null)
+                    continue;
+
+                stack.SetAvailable(i < openedStackCount);
             }
         }
 
@@ -368,7 +395,10 @@ namespace FlickSort
         {
             var total = 0;
             foreach (var stack in _stacks)
-                total += stack.Model.FreeSlots;
+            {
+                if (stack.IsAvailable)
+                    total += stack.Model.FreeSlots;
+            }
             return total;
         }
     }
