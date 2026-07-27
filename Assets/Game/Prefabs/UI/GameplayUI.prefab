@@ -1857,7 +1857,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: DEAL
+  m_text: HAMMER
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3577af8a805888344b4b32e2be5e8e9b, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 698890705bf7d604fbab6c02574eeffc, type: 2}
@@ -2018,7 +2018,7 @@ GameObject:
   - component: {fileID: 6321269865840131526}
   - component: {fileID: 5309049591152174608}
   m_Layer: 5
-  m_Name: Button (2)
+  m_Name: HammerButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2395,6 +2395,7 @@ MonoBehaviour:
   _progressFill: {fileID: 4509189574828260053}
   _dealButton: {fileID: 246406951056353120}
   _shuffleButton: {fileID: 2296408103633942172}
+  _hammerButton: {fileID: 6321269865840131526}
   _starSpawnPoint: {fileID: 3685816247409114970}
   _starTarget: {fileID: 6802393506858886631}
   _flyingStars:

@@ -10,6 +10,12 @@ namespace FlickSort
 {
     public sealed class FlickSortBoard : MonoBehaviour
     {
+        private enum BoardSkillMode
+        {
+            None,
+            Hammer
+        }
+
         private static readonly int ChipColorCount =
             System.Enum.GetValues(typeof(ChipColor)).Length;
 
@@ -30,6 +36,7 @@ namespace FlickSort
         private int _maxUnlockedChipLevel;
         private bool _chipUnlockedThisAction;
         private bool _levelUpAcknowledged;
+        private BoardSkillMode _activeSkill;
 
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
@@ -79,8 +86,16 @@ namespace FlickSort
                 return;
             
             var stack = hit.collider.GetComponentInParent<ChipStackView>();
-            if (stack != null && stack.IsAvailable)
-                HandleStackTap(stack);
+            if (stack == null || !stack.IsAvailable)
+                return;
+
+            if (_activeSkill == BoardSkillMode.Hammer)
+            {
+                HandleHammerTap(stack);
+                return;
+            }
+
+            HandleStackTap(stack);
         }
 
         public void StartLevel(int levelNumber)
@@ -93,6 +108,7 @@ namespace FlickSort
             _random = new System.Random(_level.randomSeed);
             _chipScore = 0;
             _chipUnlockedThisAction = false;
+            _activeSkill = BoardSkillMode.None;
             ClearBoard();
             InitializeSceneStacks();
             RaiseScoreProgressChanged();
@@ -102,16 +118,46 @@ namespace FlickSort
         public void Deal()
         {
             if (!_busy)
+            {
+                _activeSkill = BoardSkillMode.None;
                 StartCoroutine(DealRoutine(_level.dealChipCount > 0 ? _level.dealChipCount : config.defaultDealChipCount, true));
+            }
         }
 
         public void Shuffle()
         {
             if (!_busy)
+            {
+                _activeSkill = BoardSkillMode.None;
                 StartCoroutine(ShuffleRoutine());
+            }
+        }
+
+        public void ActivateHammer()
+        {
+            if (_busy)
+                return;
+
+            ClearSelection();
+            _activeSkill = _activeSkill == BoardSkillMode.Hammer
+                ? BoardSkillMode.None
+                : BoardSkillMode.Hammer;
         }
 
         public void RetryLevel() => StartLevel(_currentLevel);
+
+        private void HandleHammerTap(ChipStackView stack)
+        {
+            if (stack.Model.Count == 0)
+            {
+                stack.InvalidFeedback();
+                FlickSortEventBus.RaiseInvalidMove();
+                return;
+            }
+
+            _activeSkill = BoardSkillMode.None;
+            StartCoroutine(HammerRoutine(stack));
+        }
 
         private void HandleStackTap(ChipStackView stack)
         {
@@ -335,6 +381,51 @@ namespace FlickSort
             _busy = false;
         }
 
+        private IEnumerator HammerRoutine(ChipStackView stack)
+        {
+            _busy = true;
+            ClearSelection();
+
+            var destroyedChipCount = stack.Model.Count;
+            var destroyedViews = new List<ChipView>(_views[stack]);
+            stack.Model.Clear();
+            _views[stack].Clear();
+
+            var sequence = DOTween.Sequence().SetId(this);
+            for (var i = 0; i < destroyedViews.Count; i++)
+            {
+                var angle = (float)(_random.NextDouble() * Mathf.PI * 2f);
+                var direction = new Vector3(
+                    Mathf.Cos(angle),
+                    Mathf.Sin(angle),
+                    -0.2f);
+                var distanceMultiplier = Mathf.Lerp(
+                    0.8f,
+                    1.2f,
+                    (float)_random.NextDouble());
+                sequence.Join(destroyedViews[i].BreakAway(
+                    direction,
+                    config.hammerFlyDistance * distanceMultiplier,
+                    config.jumpPower,
+                    config.hammerFlyDuration,
+                    i * config.hammerFlyStagger));
+            }
+
+            yield return sequence.WaitForCompletion();
+
+            for (var i = 0; i < destroyedViews.Count; i++)
+                ReturnChip(destroyedViews[i]);
+
+            AddChipScore(destroyedChipCount);
+            if (HasReachedRequiredScore())
+            {
+                yield return LevelUpRoutine();
+                yield break;
+            }
+
+            _busy = false;
+        }
+
         private IEnumerator ResolveMerges(ChipStackView stack)
         {
             while (stack.Model.TryMergeTop(config.mergeChipCount, config.maxChipLevel, out var result))
@@ -465,6 +556,7 @@ namespace FlickSort
                 }
             }
             view.transform.localScale = Vector3.one;
+            view.transform.localRotation = Quaternion.identity;
             view.Initialize(token, new Material[]{_colorConfig.GetColor(token.Color)});
             return view;
         }

@@ -26,6 +26,11 @@ namespace FlickSort
         [Min(0f)] public float chipMoveDelay = 0.045f;
         [Min(0f)] public float jumpPower = 0.75f;
 
+        [Header("Hammer Skill")]
+        [Min(0.05f)] public float hammerFlyDuration = 0.5f;
+        [Min(0.1f)] public float hammerFlyDistance = 1.25f;
+        [Min(0f)] public float hammerFlyStagger = 0.025f;
+
         [Header("Levels")]
         public List<LevelSettings> levels = new();
 

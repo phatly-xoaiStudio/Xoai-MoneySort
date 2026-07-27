@@ -61,6 +61,9 @@ namespace FlickSort.Editor
             config.mergeDuration = 0.22f;
             config.chipMoveDelay = 0.045f;
             config.jumpPower = 0.75f;
+            config.hammerFlyDuration = 0.5f;
+            config.hammerFlyDistance = 1.25f;
+            config.hammerFlyStagger = 0.025f;
 
             config.levels = new List<LevelSettings>();
             for (var level = 1; level <= 10; level++)

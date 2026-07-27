@@ -23,6 +23,7 @@ namespace FlickSort
         {
             FlickSortEventBus.RequestDeal += OnDealRequested;
             FlickSortEventBus.RequestShuffle += OnShuffleRequested;
+            FlickSortEventBus.RequestHammer += OnHammerRequested;
             FlickSortEventBus.RequestRetry += RetryLevel;
             FlickSortEventBus.ProgressChanged += OnProgressChanged;
             FlickSortEventBus.LevelUp += OnLevelUp;
@@ -33,6 +34,7 @@ namespace FlickSort
         {
             FlickSortEventBus.RequestDeal -= OnDealRequested;
             FlickSortEventBus.RequestShuffle -= OnShuffleRequested;
+            FlickSortEventBus.RequestHammer -= OnHammerRequested;
             FlickSortEventBus.RequestRetry -= RetryLevel;
             FlickSortEventBus.ProgressChanged -= OnProgressChanged;
             FlickSortEventBus.LevelUp -= OnLevelUp;
@@ -71,6 +73,7 @@ namespace FlickSort
 
         private void OnDealRequested() => board?.Deal();
         private void OnShuffleRequested() => board?.Shuffle();
+        private void OnHammerRequested() => board?.ActivateHammer();
 
         private void RetryLevel()
         {

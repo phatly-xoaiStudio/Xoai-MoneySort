@@ -24,6 +24,9 @@ MonoBehaviour:
   mergeDuration: 0.22
   chipMoveDelay: 0.045
   jumpPower: 1.5
+  hammerFlyDuration: 0.5
+  hammerFlyDistance: 1.25
+  hammerFlyStagger: 0.025
   levels:
   - levelNumber: 1
     openedStackCount: 12

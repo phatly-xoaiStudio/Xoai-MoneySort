@@ -114,6 +114,33 @@ namespace FlickSort
             return _activeTween;
         }
 
+        public Tween BreakAway(
+            Vector3 direction,
+            float distance,
+            float jumpPower,
+            float duration,
+            float delay)
+        {
+            KillTween();
+            SetTrail(true);
+
+            var destination = transform.position + direction.normalized * distance;
+            var sequence = DOTween.Sequence().SetDelay(delay);
+            sequence.Join(transform
+                .DOJump(destination, jumpPower, 1, duration)
+                .SetEase(Ease.OutCubic));
+            sequence.Join(transform.DORotate(
+                new Vector3(360f, 540f, 270f),
+                duration,
+                RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
+            sequence.Insert(
+                duration * 0.2f,
+                transform.DOScale(Vector3.zero, duration * 0.8f).SetEase(Ease.InBack));
+            sequence.OnComplete(() => SetTrail(false));
+            _activeTween = sequence;
+            return _activeTween;
+        }
+
         public void KillTween()
         {
             _activeTween?.Kill();
