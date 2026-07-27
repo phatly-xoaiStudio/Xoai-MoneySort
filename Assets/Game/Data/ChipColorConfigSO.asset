@@ -15,6 +15,8 @@ MonoBehaviour:
   colors:
   - ColorEnum: 1
     Color: {fileID: 2100000, guid: a1c542259b303d8428ff63fe54ec1747, type: 2}
+  - ColorEnum: 5
+    Color: {fileID: 2100000, guid: 98154557a81733143b92d2e3e6f4c82f, type: 2}
   - ColorEnum: 2
     Color: {fileID: 2100000, guid: 0e654082adadfab42bc67133964f602c, type: 2}
   - ColorEnum: 3
@@ -22,4 +24,12 @@ MonoBehaviour:
   - ColorEnum: 0
     Color: {fileID: 2100000, guid: 780bb89a21e37034caeb66416b29abde, type: 2}
   - ColorEnum: 4
+    Color: {fileID: 2100000, guid: 07a3830a5faef38488ec2412dda56fbc, type: 2}
+  - ColorEnum: 7
     Color: {fileID: 2100000, guid: 8710022536f463f40b492f8f6516bc3e, type: 2}
+  - ColorEnum: 9
+    Color: {fileID: 2100000, guid: c5b852ac2188ab945854e7271f23e71e, type: 2}
+  - ColorEnum: 8
+    Color: {fileID: 2100000, guid: 80e97b8443bbd644e9e374b92ec47d44, type: 2}
+  - ColorEnum: 9
+    Color: {fileID: 2100000, guid: c5b852ac2188ab945854e7271f23e71e, type: 2}

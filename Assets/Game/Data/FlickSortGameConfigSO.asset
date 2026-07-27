@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlickSort.FlickSortGameConfig
   mergeChipCount: 10
   maxChipLevel: 10
-  stackCapacity: 100
-  defaultDealChipCount: 200
+  stackCapacity: 10
+  defaultDealChipCount: 10
   randomChipsPerStack: {x: 1, y: 3}
   chipSpacing: 0.11
   stackSpacing: 1.45
@@ -27,15 +27,15 @@ MonoBehaviour:
   levels:
   - levelNumber: 1
     openedStackCount: 20
-    colorCount: 3
+    colorCount: 4
     initialChipCount: 24
-    dealChipCount: 100000
+    dealChipCount: 10
     requiredMerges: 10
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1810
   - levelNumber: 2
     openedStackCount: 20
-    colorCount: 3
+    colorCount: 5
     initialChipCount: 26
     dealChipCount: 9
     requiredMerges: 8
@@ -43,7 +43,7 @@ MonoBehaviour:
     randomSeed: 1911
   - levelNumber: 3
     openedStackCount: 20
-    colorCount: 3
+    colorCount: 6
     initialChipCount: 28
     dealChipCount: 10
     requiredMerges: 10
@@ -51,7 +51,7 @@ MonoBehaviour:
     randomSeed: 2012
   - levelNumber: 4
     openedStackCount: 20
-    colorCount: 4
+    colorCount: 7
     initialChipCount: 30
     dealChipCount: 11
     requiredMerges: 12
@@ -59,7 +59,7 @@ MonoBehaviour:
     randomSeed: 2113
   - levelNumber: 5
     openedStackCount: 20
-    colorCount: 4
+    colorCount: 8
     initialChipCount: 32
     dealChipCount: 12
     requiredMerges: 14
@@ -67,7 +67,7 @@ MonoBehaviour:
     randomSeed: 2214
   - levelNumber: 6
     openedStackCount: 20
-    colorCount: 4
+    colorCount: 9
     initialChipCount: 34
     dealChipCount: 13
     requiredMerges: 16
@@ -75,33 +75,33 @@ MonoBehaviour:
     randomSeed: 2315
   - levelNumber: 7
     openedStackCount: 20
-    colorCount: 4
+    colorCount: 10
     initialChipCount: 36
-    dealChipCount: 14
+    dealChipCount: 20
     requiredMerges: 18
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2416
   - levelNumber: 8
     openedStackCount: 20
-    colorCount: 5
+    colorCount: 10
     initialChipCount: 38
-    dealChipCount: 15
+    dealChipCount: 25
     requiredMerges: 20
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2517
   - levelNumber: 9
     openedStackCount: 20
-    colorCount: 5
+    colorCount: 10
     initialChipCount: 40
-    dealChipCount: 16
+    dealChipCount: 28
     requiredMerges: 22
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2618
   - levelNumber: 10
     openedStackCount: 20
-    colorCount: 5
+    colorCount: 10
     initialChipCount: 42
-    dealChipCount: 17
+    dealChipCount: 30
     requiredMerges: 24
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2719

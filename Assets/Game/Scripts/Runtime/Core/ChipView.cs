@@ -43,7 +43,7 @@ namespace FlickSort
                 item.sharedMaterials = slots;
             }
 
-            _label.text = token.Level.ToString();
+            _label.text = $"{token.Level + 1}";
             // Level is shown by the label; physical chip dimensions stay uniform.
             transform.localScale = Vector3.one;
         }

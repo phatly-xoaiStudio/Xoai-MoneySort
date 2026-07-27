@@ -9,7 +9,12 @@ namespace FlickSort
         Blue,
         Yellow,
         Green,
-        Purple
+        Purple,
+        Pink,
+        Cyan,
+        Black,
+        Grey,
+        Orange
     }
 
     [Serializable]

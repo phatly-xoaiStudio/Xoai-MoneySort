@@ -58,7 +58,7 @@ namespace FlickSort
     {
         [Min(1)] public int levelNumber;
         [Range(3, 20)] public int openedStackCount;
-        [Range(2, 5)] public int colorCount;
+        [Range(2, 10)] public int colorCount;
         [Min(1)] public int initialChipCount;
         [Min(1)] public int dealChipCount;
         [Min(1)] public int requiredMerges;
