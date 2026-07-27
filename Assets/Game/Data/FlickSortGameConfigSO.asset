@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlickSort.FlickSortGameConfig
   mergeChipCount: 10
   maxChipLevel: 10
-  stackCapacity: 10
-  defaultDealChipCount: 10
+  stackCapacity: 100
+  defaultDealChipCount: 200
   randomChipsPerStack: {x: 1, y: 3}
   chipSpacing: 0.11
   stackSpacing: 1.45
@@ -29,7 +29,7 @@ MonoBehaviour:
     openedStackCount: 20
     colorCount: 3
     initialChipCount: 24
-    dealChipCount: 8
+    dealChipCount: 100000
     requiredMerges: 10
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1810
