@@ -26,7 +26,7 @@ namespace FlickSort
         private System.Random _random;
         private bool _busy;
         private int _currentLevel;
-        private int _mergeProgress;
+        private int _chipScore;
         private int _maxUnlockedChipLevel;
         private bool _chipUnlockedThisAction;
         private bool _levelUpAcknowledged;
@@ -91,11 +91,11 @@ namespace FlickSort
             _currentLevel = Mathf.Max(1, levelNumber);
             _level = config.GetLevel(_currentLevel);
             _random = new System.Random(_level.randomSeed);
-            _mergeProgress = 0;
+            _chipScore = 0;
             _chipUnlockedThisAction = false;
             ClearBoard();
             InitializeSceneStacks();
-            FlickSortEventBus.RaiseProgressChanged(_currentLevel, 0, _level.requiredMerges);
+            RaiseScoreProgressChanged();
             StartCoroutine(DealRoutine(_level.initialChipCount, false));
         }
 
@@ -103,6 +103,12 @@ namespace FlickSort
         {
             if (!_busy)
                 StartCoroutine(DealRoutine(_level.dealChipCount > 0 ? _level.dealChipCount : config.defaultDealChipCount, true));
+        }
+
+        public void Shuffle()
+        {
+            if (!_busy)
+                StartCoroutine(ShuffleRoutine());
         }
 
         public void RetryLevel() => StartLevel(_currentLevel);
@@ -158,7 +164,11 @@ namespace FlickSort
             {
                 movingViews[i].transform.SetParent(destination.ChipRoot, true);
                 movingViews[i].transform.localScale = Vector3.one;
-                var tween = movingViews[i].JumpTo(destination.GetWorldSlot(startIndex + i, config.chipSpacing), config.jumpPower, config.moveDuration, i * config.chipMoveDelay);
+                var tween = movingViews[i].ArcTo(
+                    destination.GetWorldSlot(startIndex + i, config.chipSpacing),
+                    config.jumpPower * 1.5f,
+                    config.moveDuration,
+                    i * config.chipMoveDelay);
                 sequence.Join(tween);
                 sequence.InsertCallback(
                     config.moveDuration + i * config.chipMoveDelay,
@@ -166,7 +176,7 @@ namespace FlickSort
             }
             yield return sequence.WaitForCompletion();
             yield return ResolveMerges(destination);
-            if (_chipUnlockedThisAction || _mergeProgress >= _level.requiredMerges)
+            if (_chipUnlockedThisAction || HasReachedRequiredScore())
             {
                 yield return LevelUpRoutine();
                 yield break;
@@ -228,7 +238,7 @@ namespace FlickSort
                     yield return ResolveMerges(stack);
             }
 
-            if (_chipUnlockedThisAction || _mergeProgress >= _level.requiredMerges)
+            if (_chipUnlockedThisAction || HasReachedRequiredScore())
             {
                 yield return LevelUpRoutine();
                 yield break;
@@ -241,6 +251,87 @@ namespace FlickSort
                 yield break;
             }
 
+            _busy = false;
+        }
+
+        private IEnumerator ShuffleRoutine()
+        {
+            _busy = true;
+            ClearSelection();
+
+            var availableStacks = new List<ChipStackView>();
+            var targetCounts = new List<int>();
+            var chips = new List<ChipToken>();
+            var viewsByToken = new Dictionary<ChipToken, Queue<ChipView>>();
+
+            for (var stackIndex = 0; stackIndex < _stacks.Count; stackIndex++)
+            {
+                var stack = _stacks[stackIndex];
+                if (!stack.IsAvailable)
+                    continue;
+
+                availableStacks.Add(stack);
+                targetCounts.Add(stack.Model.Count);
+                for (var chipIndex = 0; chipIndex < stack.Model.Chips.Count; chipIndex++)
+                    chips.Add(stack.Model.Chips[chipIndex]);
+
+                var stackViews = _views[stack];
+                for (var viewIndex = 0; viewIndex < stackViews.Count; viewIndex++)
+                {
+                    var view = stackViews[viewIndex];
+                    if (!viewsByToken.TryGetValue(view.Token, out var queue))
+                    {
+                        queue = new Queue<ChipView>();
+                        viewsByToken.Add(view.Token, queue);
+                    }
+                    queue.Enqueue(view);
+                }
+            }
+
+            if (chips.Count < 2)
+            {
+                _busy = false;
+                yield break;
+            }
+
+            var plan = ChipShufflePlanner.Build(
+                chips,
+                targetCounts,
+                config.mergeChipCount,
+                _random);
+
+            for (var i = 0; i < availableStacks.Count; i++)
+            {
+                availableStacks[i].Model.Clear();
+                _views[availableStacks[i]].Clear();
+            }
+
+            var sequence = DOTween.Sequence().SetId(this);
+            for (var stackIndex = 0; stackIndex < availableStacks.Count; stackIndex++)
+            {
+                var stack = availableStacks[stackIndex];
+                var stackPlan = plan[stackIndex];
+                for (var chipIndex = 0; chipIndex < stackPlan.Count; chipIndex++)
+                {
+                    var token = stackPlan[chipIndex];
+                    var view = viewsByToken[token].Dequeue();
+                    stack.Model.TryAdd(token);
+                    _views[stack].Add(view);
+                    view.transform.SetParent(stack.ChipRoot, true);
+                    view.transform.localScale = Vector3.one;
+
+                    sequence.Join(view.ArcTo(
+                        stack.GetWorldSlot(chipIndex, config.chipSpacing),
+                        config.jumpPower * 1.5f,
+                        config.moveDuration,
+                        0f));
+                }
+            }
+
+            sequence.InsertCallback(
+                config.moveDuration,
+                FlickSortEventBus.RaiseChipMoveLanded);
+            yield return sequence.WaitForCompletion();
             _busy = false;
         }
 
@@ -272,11 +363,7 @@ namespace FlickSort
                     _chipUnlockedThisAction = true;
                 }
 
-                _mergeProgress++;
-                FlickSortEventBus.RaiseProgressChanged(
-                    _currentLevel,
-                    _mergeProgress,
-                    _level.requiredMerges);
+                AddChipScore(config.mergeChipCount);
                 FlickSortEventBus.RaiseMergeCompleted(destination);
             }
         }
@@ -291,12 +378,9 @@ namespace FlickSort
             _level = config.GetLevel(_currentLevel);
             _random = new System.Random(_level.randomSeed);
             ApplyStackAvailability();
-            _mergeProgress = 0;
+            _chipScore = 0;
             _chipUnlockedThisAction = false;
-            FlickSortEventBus.RaiseProgressChanged(
-                _currentLevel,
-                _mergeProgress,
-                _level.requiredMerges);
+            RaiseScoreProgressChanged();
 
             _levelUpAcknowledged = false;
             FlickSortEventBus.RaiseLevelUp(_currentLevel, unlockedChipLevel);
@@ -306,6 +390,26 @@ namespace FlickSort
         }
 
         private void OnLevelUpAcknowledged() => _levelUpAcknowledged = true;
+
+        private void AddChipScore(int consumedChipCount)
+        {
+            if (consumedChipCount <= 0)
+                return;
+
+            _chipScore += consumedChipCount;
+            RaiseScoreProgressChanged();
+        }
+
+        private bool HasReachedRequiredScore() =>
+            _chipScore >= _level.requiredChipScore;
+
+        private void RaiseScoreProgressChanged()
+        {
+            FlickSortEventBus.RaiseProgressChanged(
+                _currentLevel,
+                _chipScore,
+                _level.requiredChipScore);
+        }
 
         private void InitializeSceneStacks()
         {

@@ -70,7 +70,7 @@ namespace FlickSort.Editor
                 settings.colorCount = level < 4 ? 3 : level < 8 ? 4 : 5;
                 settings.initialChipCount = 22 + level * 2;
                 settings.dealChipCount = 7 + level;
-                settings.requiredMerges = 4 + level * 2;
+                settings.requiredChipScore = (4 + level * 2) * config.mergeChipCount;
                 settings.chipsPerStackRange = level < 5 ? new Vector2Int(1, 2) : new Vector2Int(1, 3);
                 settings.randomSeed = 1709 + level * 101;
                 config.levels.Add(settings);

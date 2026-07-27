@@ -12,6 +12,7 @@ namespace FlickSort.UI
         [SerializeField] private TextMeshProUGUI _progressText;
         [SerializeField] private Image _progressFill;
         [SerializeField] private Button _dealButton;
+        [SerializeField] private Button _shuffleButton;
 
         [Header("Progress Star Animation")]
         [SerializeField] private RectTransform _starSpawnPoint;
@@ -32,6 +33,7 @@ namespace FlickSort.UI
         {
             base.Init(manager);
             _dealButton.onClick.AddListener(OnDealClicked);
+            _shuffleButton.onClick.AddListener(OnShuffleClicked);
             HideFlyingStars();
         }
 
@@ -55,6 +57,7 @@ namespace FlickSort.UI
         }
 
         private void OnDealClicked() => FlickSortEventBus.RaiseRequestDeal();
+        private void OnShuffleClicked() => FlickSortEventBus.RaiseRequestShuffle();
 
         private void AnimateProgress(float target)
         {
@@ -181,6 +184,7 @@ namespace FlickSort.UI
         {
             KillProgressAnimation();
             if (_dealButton != null) _dealButton.onClick.RemoveListener(OnDealClicked);
+            if (_shuffleButton != null) _shuffleButton.onClick.RemoveListener(OnShuffleClicked);
         }
     }
 }

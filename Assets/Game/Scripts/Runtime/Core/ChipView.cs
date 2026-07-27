@@ -74,6 +74,36 @@ namespace FlickSort
             return _activeTween;
         }
 
+        public Tween ArcTo(
+            Vector3 destination,
+            float arcHeight,
+            float duration,
+            float delay)
+        {
+            KillTween();
+            SetTrail(true);
+
+            var start = transform.position;
+            var control = (start + destination) * 0.5f + Vector3.up * arcHeight;
+            _activeTween = DOVirtual.Float(0f, 1f, duration, progress =>
+                {
+                    var inverse = 1f - progress;
+                    transform.position =
+                        inverse * inverse * start +
+                        2f * inverse * progress * control +
+                        progress * progress * destination;
+                })
+                .SetDelay(delay)
+                .SetEase(Ease.InOutSine)
+                .OnComplete(() =>
+                {
+                    transform.position = destination;
+                    SetTrail(false);
+                    transform.DOPunchScale(Vector3.one * 0.08f, 0.16f, 4, 0.4f);
+                });
+            return _activeTween;
+        }
+
         public Tween MergeInto(Vector3 destination, float duration, float delay)
         {
             KillTween();

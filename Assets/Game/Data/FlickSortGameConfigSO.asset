@@ -19,18 +19,18 @@ MonoBehaviour:
   randomChipsPerStack: {x: 1, y: 3}
   chipSpacing: 0.11
   stackSpacing: 1.45
-  moveDuration: 0.28
+  moveDuration: 0.25
   dealDuration: 0.34
   mergeDuration: 0.22
   chipMoveDelay: 0.045
-  jumpPower: 0.75
+  jumpPower: 1.5
   levels:
   - levelNumber: 1
     openedStackCount: 12
     colorCount: 4
     initialChipCount: 24
     dealChipCount: 10
-    requiredMerges: 10
+    requiredChipScore: 100
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1810
   - levelNumber: 2
@@ -38,7 +38,7 @@ MonoBehaviour:
     colorCount: 5
     initialChipCount: 26
     dealChipCount: 9
-    requiredMerges: 8
+    requiredChipScore: 150
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 1911
   - levelNumber: 3
@@ -46,7 +46,7 @@ MonoBehaviour:
     colorCount: 6
     initialChipCount: 28
     dealChipCount: 10
-    requiredMerges: 10
+    requiredChipScore: 150
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 2012
   - levelNumber: 4
@@ -54,7 +54,7 @@ MonoBehaviour:
     colorCount: 7
     initialChipCount: 30
     dealChipCount: 11
-    requiredMerges: 12
+    requiredChipScore: 150
     chipsPerStackRange: {x: 1, y: 2}
     randomSeed: 2113
   - levelNumber: 5
@@ -62,7 +62,7 @@ MonoBehaviour:
     colorCount: 8
     initialChipCount: 32
     dealChipCount: 12
-    requiredMerges: 14
+    requiredChipScore: 150
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2214
   - levelNumber: 6
@@ -70,7 +70,7 @@ MonoBehaviour:
     colorCount: 9
     initialChipCount: 34
     dealChipCount: 13
-    requiredMerges: 16
+    requiredChipScore: 150
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2315
   - levelNumber: 7
@@ -78,7 +78,7 @@ MonoBehaviour:
     colorCount: 10
     initialChipCount: 36
     dealChipCount: 20
-    requiredMerges: 18
+    requiredChipScore: 180
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2416
   - levelNumber: 8
@@ -86,7 +86,7 @@ MonoBehaviour:
     colorCount: 10
     initialChipCount: 38
     dealChipCount: 25
-    requiredMerges: 20
+    requiredChipScore: 200
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2517
   - levelNumber: 9
@@ -94,7 +94,7 @@ MonoBehaviour:
     colorCount: 10
     initialChipCount: 40
     dealChipCount: 28
-    requiredMerges: 22
+    requiredChipScore: 220
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2618
   - levelNumber: 10
@@ -102,6 +102,6 @@ MonoBehaviour:
     colorCount: 10
     initialChipCount: 42
     dealChipCount: 30
-    requiredMerges: 24
+    requiredChipScore: 240
     chipsPerStackRange: {x: 1, y: 3}
     randomSeed: 2719

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FlickSort
 {
@@ -40,7 +41,7 @@ namespace FlickSort
 
             var extra = oneBasedLevel - levels.Count;
             source.levelNumber = oneBasedLevel;
-            source.requiredMerges += extra * 2;
+            source.requiredChipScore += extra * mergeChipCount * 2;
             source.dealChipCount += extra / 2;
             return source;
         }
@@ -61,7 +62,8 @@ namespace FlickSort
         [Range(2, 10)] public int colorCount;
         [Min(1)] public int initialChipCount;
         [Min(1)] public int dealChipCount;
-        [Min(1)] public int requiredMerges;
+        [FormerlySerializedAs("requiredMerges")]
+        [Min(1)] public int requiredChipScore;
         public Vector2Int chipsPerStackRange;
         public int randomSeed;
 
@@ -72,7 +74,7 @@ namespace FlickSort
             colorCount = Mathf.Clamp(3 + (level - 1) / 4, 3, 5),
             initialChipCount = 24 + level * 2,
             dealChipCount = 8 + level,
-            requiredMerges = 5 + level * 2,
+            requiredChipScore = 50 + level * 20,
             chipsPerStackRange = new Vector2Int(1, 3),
             randomSeed = 1200 + level * 97
         };
