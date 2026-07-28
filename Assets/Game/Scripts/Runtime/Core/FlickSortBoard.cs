@@ -340,6 +340,7 @@ namespace FlickSort
                 yield break;
             }
 
+            FlickSortEventBus.RaiseShuffleStarted();
             var plan = ChipShufflePlanner.Build(
                 chips,
                 targetCounts,
@@ -385,6 +386,8 @@ namespace FlickSort
         {
             _busy = true;
             ClearSelection();
+
+            FlickSortEventBus.RaiseHammerStarted();
 
             var destroyedChipCount = stack.Model.Count;
             var destroyedViews = new List<ChipView>(_views[stack]);

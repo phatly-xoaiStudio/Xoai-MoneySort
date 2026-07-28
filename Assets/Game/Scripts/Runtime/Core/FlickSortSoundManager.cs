@@ -13,6 +13,8 @@ namespace FlickSort
         [SerializeField] private AudioClip progressStarSound;
         [SerializeField] private AudioClip levelUpSound;
         [SerializeField] private AudioClip loseSound;
+        [SerializeField] private AudioClip shuffleSound;
+        [SerializeField] private AudioClip hammerSound;
 
         [Header("Background music")]
         [SerializeField] private AudioSource musicSource;
@@ -20,6 +22,8 @@ namespace FlickSort
         [SerializeField, Range(0f, 1f)] private float musicVolume = 0.28f;
         [SerializeField, Range(0f, 1f)] private float levelUpSoundVolume = 0.75f;
         [SerializeField, Range(0f, 1f)] private float loseSoundVolume = 0.8f;
+        [SerializeField, Range(0f, 1f)] private float shuffleSoundVolume = 0.75f;
+        [SerializeField, Range(0f, 1f)] private float hammerSoundVolume = 0.9f;
 
         [Header("Move cadence")]
         [SerializeField, Min(0f)] private float moveSoundMinInterval = 0.06f;
@@ -45,6 +49,8 @@ namespace FlickSort
         private void OnEnable()
         {
             FlickSortEventBus.DealStarted += PlayDealSound;
+            FlickSortEventBus.ShuffleStarted += PlayShuffleSound;
+            FlickSortEventBus.HammerStarted += PlayHammerSound;
             FlickSortEventBus.ChipMoveLanded += PlayMoveSound;
             FlickSortEventBus.ProgressStarLanded += PlayProgressStarSound;
             FlickSortEventBus.InvalidMove += PlayInvalidMoveSound;
@@ -57,6 +63,8 @@ namespace FlickSort
         private void OnDisable()
         {
             FlickSortEventBus.DealStarted -= PlayDealSound;
+            FlickSortEventBus.ShuffleStarted -= PlayShuffleSound;
+            FlickSortEventBus.HammerStarted -= PlayHammerSound;
             FlickSortEventBus.ChipMoveLanded -= PlayMoveSound;
             FlickSortEventBus.ProgressStarLanded -= PlayProgressStarSound;
             FlickSortEventBus.InvalidMove -= PlayInvalidMoveSound;
@@ -66,6 +74,12 @@ namespace FlickSort
         }
 
         private void PlayDealSound() => PlayOneShot(dealSound, 0.6f);
+
+        private void PlayShuffleSound() =>
+            PlayOneShot(shuffleSound, shuffleSoundVolume);
+
+        private void PlayHammerSound() =>
+            PlayOneShot(hammerSound, hammerSoundVolume);
 
         private void PlayInvalidMoveSound() => PlayOneShot(moveSound, 0.35f);
 

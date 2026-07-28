@@ -1,0 +1,15 @@
+﻿Skill sound effects used by Flick Sort
+
+Shuffle skill:
+Title: Placing poker chips
+Creator: OxidVideos
+Source: https://pixabay.com/sound-effects/film-special-effects-placing-poker-chips-522523/
+
+Hammer skill:
+Title: Falling Coins and Treasure Clatter
+Creator: PWLPL
+Source: https://pixabay.com/sound-effects/film-special-effects-falling-coins-and-treasure-clatter-481169/
+Disclosure: Pixabay marks this sound as AI modified or generated.
+
+Both files are provided under the Pixabay Content License:
+https://pixabay.com/service/license-summary/

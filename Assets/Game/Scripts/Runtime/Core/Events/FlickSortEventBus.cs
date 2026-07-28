@@ -17,6 +17,8 @@ namespace FlickSort.Core
         public static event Action LevelUpAcknowledged;
         public static event Action LevelLost;
         public static event Action DealStarted;
+        public static event Action ShuffleStarted;
+        public static event Action HammerStarted;
         public static event Action ChipMoveLanded;
         public static event Action<int> ProgressStarLanded;
         public static event Action<Vector3> MergeCompleted;
@@ -36,6 +38,8 @@ namespace FlickSort.Core
         public static void RaiseLevelUpAcknowledged() => LevelUpAcknowledged?.Invoke();
         public static void RaiseLevelLost() => LevelLost?.Invoke();
         public static void RaiseDealStarted() => DealStarted?.Invoke();
+        public static void RaiseShuffleStarted() => ShuffleStarted?.Invoke();
+        public static void RaiseHammerStarted() => HammerStarted?.Invoke();
         public static void RaiseChipMoveLanded() => ChipMoveLanded?.Invoke();
         public static void RaiseProgressStarLanded(int starIndex) => ProgressStarLanded?.Invoke(starIndex);
         public static void RaiseMergeCompleted(Vector3 position) => MergeCompleted?.Invoke(position);
@@ -57,6 +61,8 @@ namespace FlickSort.Core
             LevelUpAcknowledged = null;
             LevelLost = null;
             DealStarted = null;
+            ShuffleStarted = null;
+            HammerStarted = null;
             ChipMoveLanded = null;
             ProgressStarLanded = null;
             MergeCompleted = null;

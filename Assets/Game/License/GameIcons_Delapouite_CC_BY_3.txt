@@ -1,0 +1,15 @@
+Skill icons used by Flick Sort
+
+Card Exchange (Shuffle skill):
+https://game-icons.net/1x1/delapouite/card-exchange.html
+
+Hammer Break (Hammer skill):
+https://game-icons.net/1x1/delapouite/hammer-break.html
+
+Creator: Delapouite
+Source: Game-icons.net
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+License URL: https://creativecommons.org/licenses/by/3.0/
+
+The icons may be shared and adapted, including commercially, provided
+appropriate credit is given to the creator and the license is identified.

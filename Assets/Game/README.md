@@ -49,10 +49,12 @@ All bundled license text files are centralized in `Assets/Game/License`.
 | Kenney Impact Sounds | Creative Commons Zero (CC0 1.0). Credit is optional. | `License/Kenney_Impact_Sounds_CC0.txt` |
 | Collect Points sound effect by LIECIO | Pixabay Content License. Credit: `Sound Effect by LIECIO from Pixabay`. | `License/Pixabay_LIECIO_CollectPoints.txt` |
 | Casino BGM and game-state sounds | Pixabay Content License. BGM by MFCC, level-up sound by PuyoPuyoMegaFan1234, and lose sound by Tuomas_Data. | `License/Pixabay_CasinoAudio.txt` |
+| Skill sound effects | Pixabay Content License. Placing poker chips by OxidVideos is used for Shuffle; Falling Coins and Treasure Clatter by PWLPL is used for Hammer. | `License/Pixabay_SkillSounds.txt` |
 | Sunbursts / 2D Rays by simranzenov | Creative Commons Zero (CC0 1.0). The transparent yellow sunburst is used behind the newly unlocked 3D chip. | `License/OpenGameArt_Sunbursts_CC0.txt` |
 | Felt Backgrounds by jbp4444 | Creative Commons Zero (CC0 1.0). The green felt scan is used as the world-space poker background behind the 3D tray. | `License/OpenGameArt_FeltBackgrounds_CC0.txt` |
 | Poker chip tray by RandomRust | Creative Commons Attribution-ShareAlike. Attribution and share-alike obligations apply. | `License/LICENSEPokerChipTray.txt` |
 | Poly Haven Wooden Planks | Creative Commons Zero (CC0 1.0). Charlotte Baglioni (photography), Dario Barresi (processing). | `License/PolyHaven_WoodenPlanks_CC0.txt` |
+| Shuffle and Hammer Break skill icons by Delapouite via Game-icons.net | Creative Commons Attribution 3.0 (CC BY 3.0). | `License/GameIcons_Delapouite_CC_BY_3.txt` |
 
 No separate license text file was found inside the imported poker-chip model, Coins, Casual Hit, SimpleFX, or Lana Studio folders. Keep the original store/download receipts and license terms for those assets before distribution. Assets obtained through the Unity Asset Store are generally subject to the Unity Asset Store EULA, but eligibility and redistribution rights must be checked against each asset's original listing.
 
@@ -61,11 +63,12 @@ No separate license text file was found inside the imported poker-chip model, Co
 ```text
 UI and audio assets by Kenney (kenney.nl), licensed CC0.
 Sound Effect by LIECIO from Pixabay.
-Casino BGM by MFCC; level-up sound by PuyoPuyoMegaFan1234; game-over sound by Tuomas_Data, all from Pixabay.
+Casino BGM by MFCC; level-up sound by PuyoPuyoMegaFan1234; game-over sound by Tuomas_Data, all from Pixabay. sound Placing poker chips by OxidVideos and hammer sound Falling Coins and Treasure Clatter by PWLPL, from Pixabay.
 Sunburst effect by simranzenov via OpenGameArt, licensed CC0.
 Green felt background by jbp4444 via OpenGameArt, licensed CC0.
 Poker chip tray by RandomRust, licensed CC BY-SA.
 Wooden Planks texture by Charlotte Baglioni and Dario Barresi via Poly Haven, licensed CC0.
+Shuffle and Hammer Break icons by Delapouite via Game-icons.net, licensed CC BY 3.0.
 ```
 
 ## Notes
