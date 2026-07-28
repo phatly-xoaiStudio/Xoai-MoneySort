@@ -21,6 +21,10 @@ namespace FlickSort
 
         [SerializeField] private FlickSortGameConfig config;
         [SerializeField] private GameObject chipPrefab;
+        [Header("Responsive Tray")]
+        [SerializeField] private bool fitTrayOnNarrowScreens = true;
+        [SerializeField, Min(0.1f)] private float referenceAspect = 9f / 16f;
+        [SerializeField, Range(0.5f, 1f)] private float minimumTrayScale = 0.7f;
         private ChipColorConfigSO _colorConfig;
         [SerializeField] private List<ChipStackView> _stacks = new();
         private readonly Dictionary<ChipStackView, List<ChipView>> _views = new();
@@ -37,6 +41,8 @@ namespace FlickSort
         private bool _chipUnlockedThisAction;
         private bool _levelUpAcknowledged;
         private BoardSkillMode _activeSkill;
+        private Vector3 _authoredTrayScale;
+        private Vector2Int _lastScreenSize;
 
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
@@ -68,6 +74,8 @@ namespace FlickSort
             if (_camera == null)
                 throw new MissingReferenceException(
                     "FlickSortBoard requires a camera tagged MainCamera.");
+            _authoredTrayScale = transform.localScale;
+            RefreshResponsiveTray(true);
             _currentLevel = 1;
             _maxUnlockedChipLevel = Mathf.Clamp(
                 config.GetLevel(_currentLevel).colorCount - 1,
@@ -78,6 +86,8 @@ namespace FlickSort
 
         private void Update()
         {
+            RefreshResponsiveTray(false);
+
             if (_busy || Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
                 return;
             
@@ -96,6 +106,24 @@ namespace FlickSort
             }
 
             HandleStackTap(stack);
+        }
+
+        private void RefreshResponsiveTray(bool force)
+        {
+            if (!fitTrayOnNarrowScreens || Screen.width <= 0 || Screen.height <= 0)
+                return;
+
+            var screenSize = new Vector2Int(Screen.width, Screen.height);
+            if (!force && screenSize == _lastScreenSize)
+                return;
+
+            _lastScreenSize = screenSize;
+            var aspect = (float)screenSize.x / screenSize.y;
+            var responsiveScale = Mathf.Clamp(
+                aspect / Mathf.Max(0.1f, referenceAspect),
+                minimumTrayScale,
+                1f);
+            transform.localScale = _authoredTrayScale * responsiveScale;
         }
 
         public void StartLevel(int levelNumber)
