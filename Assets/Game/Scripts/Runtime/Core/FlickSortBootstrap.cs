@@ -18,6 +18,9 @@ namespace FlickSort
 
         private void Awake()
         {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+
             DOTween.Init(false, true, LogBehaviour.ErrorsOnly);
             uiManager.Init(uiDefinitionSo.Definitions);
             gameplayUIController.Init();
