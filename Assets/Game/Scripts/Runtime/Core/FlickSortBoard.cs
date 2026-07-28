@@ -112,7 +112,7 @@ namespace FlickSort
             ClearBoard();
             InitializeSceneStacks();
             RaiseScoreProgressChanged();
-            StartCoroutine(DealRoutine(_level.initialChipCount, false));
+            StartCoroutine(DealRoutine(_level.initialChipCount, false, false));
         }
 
         public void Deal()
@@ -120,7 +120,12 @@ namespace FlickSort
             if (!_busy)
             {
                 _activeSkill = BoardSkillMode.None;
-                StartCoroutine(DealRoutine(_level.dealChipCount > 0 ? _level.dealChipCount : config.defaultDealChipCount, true));
+                StartCoroutine(DealRoutine(
+                    _level.dealChipCount > 0
+                        ? _level.dealChipCount
+                        : config.defaultDealChipCount,
+                    true,
+                    true));
             }
         }
 
@@ -230,11 +235,15 @@ namespace FlickSort
             _busy = false;
         }
 
-        private IEnumerator DealRoutine(int requestedCount, bool checkLoss)
+        private IEnumerator DealRoutine(
+            int requestedCount,
+            bool checkLoss,
+            bool playDealSound)
         {
             _busy = true;
             ClearSelection();
-            FlickSortEventBus.RaiseDealStarted();
+            if (playDealSound)
+                FlickSortEventBus.RaiseDealStarted();
             var remaining = Mathf.Min(requestedCount, TotalFreeSlots());
             var sequence = DOTween.Sequence().SetId(this);
             var delay = 0f;
