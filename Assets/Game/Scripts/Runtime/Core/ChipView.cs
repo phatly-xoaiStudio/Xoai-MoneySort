@@ -9,42 +9,53 @@ namespace FlickSort
         [SerializeField] private Renderer[] _renderers;
         [SerializeField] private TextMeshPro _label;
         [SerializeField] private TrailRenderer[] _trails;
-        [SerializeField] private int[] materialChangeSlots;   
+        [SerializeField] private int[] materialChangeSlots;
+
+        private Material[][] _sharedMaterialSlots;
         private Tween _activeTween;
 
         public ChipToken Token { get; private set; }
 
-        public void Initialize(ChipToken token, Material[] material)
+        private void Awake()
         {
-            // _renderers ??= GetComponentsInChildren<Renderer>(true);
-            // _trails ??= GetComponentsInChildren<TrailRenderer>(true);
-            // if (_label == null)
-            //     throw new MissingReferenceException(
-            //         $"{nameof(ChipView)} on '{name}' requires an authored TextMeshPro label.");
+            CacheReferences();
+        }
+
+        public void Initialize(ChipToken token, Material material)
+        {
+            CacheReferences();
             SetToken(token, material);
             SetTrail(false);
         }
 
-        public void SetToken(ChipToken token, Material[] material)
+        public void SetToken(ChipToken token, Material material)
         {
+            CacheReferences();
             Token = token;
-            _renderers ??= GetComponentsInChildren<Renderer>(true);
-            foreach (var item in _renderers)
+
+            for (var rendererIndex = 0; rendererIndex < _renderers.Length; rendererIndex++)
             {
-                if (item is TrailRenderer || item is SpriteRenderer)
+                var renderer = _renderers[rendererIndex];
+                if (renderer == null || renderer is TrailRenderer || renderer is SpriteRenderer)
                     continue;
-                var slots = item.sharedMaterials;
-                // for (var i = 0; i < slots.Length; i++)
-                //     slots[i] = material;    
-                for (var i = 0; i < materialChangeSlots.Length; i++)
+
+                var slots = _sharedMaterialSlots[rendererIndex];
+                var changed = false;
+                for (var slotIndex = 0; slotIndex < materialChangeSlots.Length; slotIndex++)
                 {
-                    slots[materialChangeSlots[i]] = material[i];
+                    var materialSlot = materialChangeSlots[slotIndex];
+                    if (materialSlot < 0 || materialSlot >= slots.Length || slots[materialSlot] == material)
+                        continue;
+
+                    slots[materialSlot] = material;
+                    changed = true;
                 }
-                item.sharedMaterials = slots;
+
+                if (changed)
+                    renderer.sharedMaterials = slots;
             }
 
-            _label.text = $"{token.Level + 1}";
-            // Level is shown by the label; physical chip dimensions stay uniform.
+            _label.text = (token.Level + 1).ToString();
             transform.localScale = Vector3.one;
         }
 
@@ -74,11 +85,7 @@ namespace FlickSort
             return _activeTween;
         }
 
-        public Tween ArcTo(
-            Vector3 destination,
-            float arcHeight,
-            float duration,
-            float delay)
+        public Tween ArcTo(Vector3 destination, float arcHeight, float duration, float delay)
         {
             KillTween();
             SetTrail(true);
@@ -150,15 +157,36 @@ namespace FlickSort
 
         private void OnDestroy() => KillTween();
 
+        private void CacheReferences()
+        {
+            if (_renderers == null || _renderers.Length == 0)
+                _renderers = GetComponentsInChildren<Renderer>(true);
+            if (_trails == null || _trails.Length == 0)
+                _trails = GetComponentsInChildren<TrailRenderer>(true);
+            if (_label == null)
+                throw new MissingReferenceException(
+                    $"{nameof(ChipView)} on '{name}' requires an authored TextMeshPro label.");
+
+            if (_sharedMaterialSlots != null && _sharedMaterialSlots.Length == _renderers.Length)
+                return;
+
+            _sharedMaterialSlots = new Material[_renderers.Length][];
+            for (var i = 0; i < _renderers.Length; i++)
+                _sharedMaterialSlots[i] = _renderers[i] != null
+                    ? _renderers[i].sharedMaterials
+                    : System.Array.Empty<Material>();
+        }
+
         private void SetTrail(bool enabled)
         {
-            _trails ??= GetComponentsInChildren<TrailRenderer>(true);
-            foreach (var trail in _trails)
+            for (var i = 0; i < _trails.Length; i++)
             {
+                var trail = _trails[i];
+                if (trail == null)
+                    continue;
                 trail.Clear();
                 trail.emitting = enabled;
             }
         }
-
     }
 }

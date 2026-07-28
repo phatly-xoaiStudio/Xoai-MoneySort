@@ -10,9 +10,12 @@ namespace FlickSort
         [SerializeField] private ParticleSystem mergeBurstPrefab;
 
         private ParticleSystem _mergeBurstInstance;
+        private Transform _cameraTransform;
 
         private void Awake()
         {
+            var mainCamera = Camera.main;
+            _cameraTransform = mainCamera != null ? mainCamera.transform : null;
             EnsureMergeBurstInstance();
         }
 
@@ -30,7 +33,7 @@ namespace FlickSort
 
         private void OnMergeCompleted(Vector3 position)
         {
-            Camera.main?.transform.DOShakePosition(0.18f, 0.08f, 8, 45f, false, true);
+            _cameraTransform?.DOShakePosition(0.18f, 0.08f, 8, 45f, false, true);
             EnsureMergeBurstInstance();
             if (_mergeBurstInstance == null)
                 return;

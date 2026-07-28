@@ -21,14 +21,16 @@ namespace FlickSort
 
         [SerializeField] private FlickSortGameConfig config;
         [SerializeField] private GameObject chipPrefab;
-        [Header("Responsive Tray")]
+        [Header("Responsive Camera")]
         [SerializeField] private bool fitTrayOnNarrowScreens = true;
         [SerializeField, Min(0.1f)] private float referenceAspect = 9f / 16f;
         [SerializeField, Range(0.5f, 1f)] private float minimumTrayScale = 0.7f;
+        [SerializeField] private SpriteRenderer responsiveBackground;
         private ChipColorConfigSO _colorConfig;
         [SerializeField] private List<ChipStackView> _stacks = new();
         private readonly Dictionary<ChipStackView, List<ChipView>> _views = new();
         private readonly Stack<ChipView> _pool = new();
+        private readonly List<ChipStackView> _availableDealStacks = new(20);
         private Camera _camera;
         private Transform _chipSpawner;
         private ChipStackView _selected;
@@ -41,7 +43,11 @@ namespace FlickSort
         private bool _chipUnlockedThisAction;
         private bool _levelUpAcknowledged;
         private BoardSkillMode _activeSkill;
-        private Vector3 _authoredTrayScale;
+        private float _authoredCameraSize;
+        private Vector3 _authoredCameraPosition;
+        private Vector2 _authoredTrayViewportPosition;
+        private Vector3 _authoredBackgroundScale;
+        private Vector2 _authoredBackgroundWorldSize;
         private Vector2Int _lastScreenSize;
 
         public bool IsBusy => _busy;
@@ -74,8 +80,8 @@ namespace FlickSort
             if (_camera == null)
                 throw new MissingReferenceException(
                     "FlickSortBoard requires a camera tagged MainCamera.");
-            _authoredTrayScale = transform.localScale;
-            RefreshResponsiveTray(true);
+            CacheResponsiveLayout();
+            RefreshResponsiveCamera(true);
             _currentLevel = 1;
             _maxUnlockedChipLevel = Mathf.Clamp(
                 config.GetLevel(_currentLevel).colorCount - 1,
@@ -86,7 +92,7 @@ namespace FlickSort
 
         private void Update()
         {
-            RefreshResponsiveTray(false);
+            RefreshResponsiveCamera(false);
 
             if (_busy || Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
                 return;
@@ -108,7 +114,35 @@ namespace FlickSort
             HandleStackTap(stack);
         }
 
-        private void RefreshResponsiveTray(bool force)
+        private void CacheResponsiveLayout()
+        {
+            _authoredCameraSize = _camera.orthographicSize;
+            _authoredCameraPosition = _camera.transform.position;
+            var viewportPosition = _camera.WorldToViewportPoint(transform.position);
+            _authoredTrayViewportPosition = new Vector2(viewportPosition.x, viewportPosition.y);
+
+            if (responsiveBackground == null)
+            {
+                var spriteRenderers = FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None);
+                for (var i = 0; i < spriteRenderers.Length; i++)
+                {
+                    if (responsiveBackground == null ||
+                        spriteRenderers[i].sortingOrder < responsiveBackground.sortingOrder)
+                    {
+                        responsiveBackground = spriteRenderers[i];
+                    }
+                }
+            }
+
+            if (responsiveBackground == null)
+                return;
+
+            _authoredBackgroundScale = responsiveBackground.transform.localScale;
+            var bounds = responsiveBackground.bounds;
+            _authoredBackgroundWorldSize = new Vector2(bounds.size.x, bounds.size.y);
+        }
+
+        private void RefreshResponsiveCamera(bool force)
         {
             if (!fitTrayOnNarrowScreens || Screen.width <= 0 || Screen.height <= 0)
                 return;
@@ -119,13 +153,44 @@ namespace FlickSort
 
             _lastScreenSize = screenSize;
             var aspect = (float)screenSize.x / screenSize.y;
-            var responsiveScale = Mathf.Clamp(
+            var visibleScale = Mathf.Clamp(
                 aspect / Mathf.Max(0.1f, referenceAspect),
                 minimumTrayScale,
                 1f);
-            transform.localScale = _authoredTrayScale * responsiveScale;
+            var cameraSize = _authoredCameraSize / visibleScale;
+            _camera.orthographicSize = cameraSize;
+
+            var cameraPosition = _authoredCameraPosition;
+            cameraPosition.x = transform.position.x -
+                (_authoredTrayViewportPosition.x - 0.5f) * 2f * cameraSize * aspect;
+            cameraPosition.y = transform.position.y -
+                (_authoredTrayViewportPosition.y - 0.5f) * 2f * cameraSize;
+            _camera.transform.position = cameraPosition;
+
+            FitBackgroundToCamera(cameraSize, aspect);
         }
 
+        private void FitBackgroundToCamera(float cameraSize, float aspect)
+        {
+            if (responsiveBackground == null ||
+                _authoredBackgroundWorldSize.x <= 0f ||
+                _authoredBackgroundWorldSize.y <= 0f)
+            {
+                return;
+            }
+
+            var visibleHeight = cameraSize * 2f;
+            var visibleWidth = visibleHeight * aspect;
+            var coverScale = Mathf.Max(
+                visibleWidth / _authoredBackgroundWorldSize.x,
+                visibleHeight / _authoredBackgroundWorldSize.y,
+                1f);
+            responsiveBackground.transform.localScale = _authoredBackgroundScale * coverScale;
+            var backgroundPosition = responsiveBackground.transform.position;
+            backgroundPosition.x = _camera.transform.position.x;
+            backgroundPosition.y = _camera.transform.position.y;
+            responsiveBackground.transform.position = backgroundPosition;
+        }
         public void StartLevel(int levelNumber)
         {
             StopAllCoroutines();
@@ -280,12 +345,11 @@ namespace FlickSort
 
             while (remaining > 0 && safety++ < 1000)
             {
-                var available = _stacks.FindAll(
-                    item => item.IsAvailable && item.Model.FreeSlots > 0);
-                if (available.Count == 0)
+                CollectAvailableDealStacks();
+                if (_availableDealStacks.Count == 0)
                     break;
 
-                var stack = available[_random.Next(available.Count)];
+                var stack = _availableDealStacks[_random.Next(_availableDealStacks.Count)];
                 var range = _level.chipsPerStackRange.y > 0 ? _level.chipsPerStackRange : config.randomChipsPerStack;
                 var amount = Mathf.Min(remaining, Mathf.Min(stack.Model.FreeSlots, _random.Next(range.x, range.y + 1)));
                 for (var i = 0; i < amount; i++)
@@ -484,7 +548,7 @@ namespace FlickSort
                     ReturnChip(mergeViews[i]);
                 resultView.transform.position = destination;
                 resultView.transform.localScale = Vector3.one;
-                resultView.SetToken(result, new Material[]{ _colorConfig.GetColor(result.Color)});
+                resultView.SetToken(result, _colorConfig.GetColor(result.Color));
                 resultView.transform.DOPunchScale(Vector3.one * 0.18f, 0.28f, 6, 0.5f);
                 views.Add(resultView);
 
@@ -597,7 +661,7 @@ namespace FlickSort
             }
             view.transform.localScale = Vector3.one;
             view.transform.localRotation = Quaternion.identity;
-            view.Initialize(token, new Material[]{_colorConfig.GetColor(token.Color)});
+            view.Initialize(token, _colorConfig.GetColor(token.Color));
             return view;
         }
 
@@ -627,6 +691,16 @@ namespace FlickSort
             _selected = null;
         }
 
+        private void CollectAvailableDealStacks()
+        {
+            _availableDealStacks.Clear();
+            for (var i = 0; i < _stacks.Count; i++)
+            {
+                var stack = _stacks[i];
+                if (stack != null && stack.IsAvailable && stack.Model.FreeSlots > 0)
+                    _availableDealStacks.Add(stack);
+            }
+        }
         private int TotalFreeSlots()
         {
             var total = 0;
