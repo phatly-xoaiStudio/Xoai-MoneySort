@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FlickSort.UI;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -258,18 +259,24 @@ namespace FlickSort.Editor
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
-        private static Text CreateText(string name, Transform parent, string value, int size, Color color)
+        private static TextMeshProUGUI CreateText(
+            string name,
+            Transform parent,
+            string value,
+            int size,
+            Color color)
         {
             var obj = CreateUiObject(name, parent);
-            var text = obj.AddComponent<Text>();
+            var text = obj.AddComponent<TextMeshProUGUI>();
             text.text = value;
-            text.font = AssetDatabase.LoadAssetAtPath<Font>(Root + "/UI/KenneyUIPack/Font/Kenney Future.ttf");
+            text.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                Root + "/Sprite/KenneyUIPack/Font/Kenney Future SDF.asset");
             text.fontSize = size;
             text.color = color;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = 18;
-            text.resizeTextMaxSize = size;
+            text.alignment = TextAlignmentOptions.Center;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 18;
+            text.fontSizeMax = size;
             text.raycastTarget = false;
             return text;
         }

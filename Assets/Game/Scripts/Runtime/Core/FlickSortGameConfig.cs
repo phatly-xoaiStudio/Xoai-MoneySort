@@ -8,16 +8,69 @@ namespace FlickSort
     public static class FlickSortBoardRules
     {
         public const int TotalSlotCount = 15;
-        public const int InitialAvailableSlotCount = 5;
-        public const int AvailableSlotsPerLevel = 1;
+        public const int InitialAvailableSlotCount = 6;
+        public const int RentSlotCount = 1;
+        public const int LockedSlotCount = 8;
         public const int FirstLevelNumber = 1;
+        public const int RentSlotIndex = InitialAvailableSlotCount;
+        public const int FirstLockedSlotIndex = RentSlotIndex + RentSlotCount;
+
+        private static readonly int[] LockedSlotUnlockLevels =
+        {
+            2,
+            3,
+            5,
+            11,
+            15,
+            20,
+            25,
+            30
+        };
 
         public static int GetAvailableSlotCount(int oneBasedLevel)
         {
-            var completedLevels = Mathf.Max(0, oneBasedLevel - FirstLevelNumber);
-            return Mathf.Min(
-                InitialAvailableSlotCount + completedLevels * AvailableSlotsPerLevel,
-                TotalSlotCount);
+            var availableCount = InitialAvailableSlotCount;
+            for (var index = 0; index < LockedSlotUnlockLevels.Length; index++)
+            {
+                if (oneBasedLevel >= LockedSlotUnlockLevels[index])
+                    availableCount++;
+            }
+            return availableCount;
+        }
+
+        public static StackAccessState GetAccessState(int slotIndex, int oneBasedLevel)
+        {
+            if (slotIndex < 0 || slotIndex >= TotalSlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slotIndex));
+
+            if (slotIndex < InitialAvailableSlotCount)
+                return StackAccessState.Available;
+            if (slotIndex == RentSlotIndex)
+                return StackAccessState.Rent;
+
+            var lockedSlotIndex = slotIndex - FirstLockedSlotIndex;
+            return oneBasedLevel >= LockedSlotUnlockLevels[lockedSlotIndex]
+                ? StackAccessState.Available
+                : StackAccessState.Locked;
+        }
+
+        public static int GetUnlockLevel(int slotIndex)
+        {
+            if (slotIndex < FirstLockedSlotIndex || slotIndex >= TotalSlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slotIndex));
+
+            return LockedSlotUnlockLevels[slotIndex - FirstLockedSlotIndex];
+        }
+
+        public static int GetNextLockedSlotIndex(int oneBasedLevel)
+        {
+            for (var lockedIndex = 0; lockedIndex < LockedSlotUnlockLevels.Length; lockedIndex++)
+            {
+                if (oneBasedLevel < LockedSlotUnlockLevels[lockedIndex])
+                    return FirstLockedSlotIndex + lockedIndex;
+            }
+
+            return -1;
         }
     }
 
@@ -57,14 +110,14 @@ namespace FlickSort
 
             var index = Mathf.Clamp(oneBasedLevel - 1, 0, levels.Count - 1);
             var source = levels[index];
-            if (oneBasedLevel <= levels.Count)
-                return source;
-
-            var extra = oneBasedLevel - levels.Count;
+            var extra = Mathf.Max(0, oneBasedLevel - levels.Count);
             source.levelNumber = oneBasedLevel;
             source.openedStackCount = FlickSortBoardRules.GetAvailableSlotCount(oneBasedLevel);
-            source.requiredChipScore += extra * mergeChipCount * 2;
-            source.dealChipCount += extra / 2;
+            if (extra > 0)
+            {
+                source.requiredChipScore += extra * mergeChipCount * 2;
+                source.dealChipCount += extra / 2;
+            }
             return source;
         }
 

@@ -7,7 +7,7 @@ namespace FlickSort.Editor
     [InitializeOnLoad]
     public static class FlickSortTestRunner
     {
-        private const string SessionKey = "FlickSort.CoreTests.Run.v2";
+        private const string SessionKey = "FlickSort.CoreTests.Run.v4";
         private static TestRunnerApi _api;
         private static TestCallbacks _callbacks;
 

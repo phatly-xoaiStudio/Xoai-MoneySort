@@ -650,10 +650,8 @@ namespace FlickSort
 
         private void ApplyStackAvailability()
         {
-            var openedStackCount = Mathf.Clamp(
-                _level.openedStackCount,
-                0,
-                _stacks.Count);
+            var nextLockedSlotIndex =
+                FlickSortBoardRules.GetNextLockedSlotIndex(_currentLevel);
 
             for (var i = 0; i < _stacks.Count; i++)
             {
@@ -661,12 +659,11 @@ namespace FlickSort
                 if (stack == null)
                     continue;
 
-                var state = i < openedStackCount
-                    ? StackAccessState.Available
-                    : i == openedStackCount
-                        ? StackAccessState.Rent
-                        : StackAccessState.Locked;
-                stack.SetAccessState(state);
+                var state = FlickSortBoardRules.GetAccessState(i, _currentLevel);
+                var displayedUnlockLevel = i == nextLockedSlotIndex
+                    ? FlickSortBoardRules.GetUnlockLevel(i)
+                    : 0;
+                stack.SetAccessState(state, displayedUnlockLevel);
             }
         }
 
