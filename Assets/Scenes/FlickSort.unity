@@ -132,6 +132,18 @@ PrefabInstance:
       value: ChipTray
       objectReference: {fileID: 0}
     - target: {fileID: 6033104591041008444, guid: fe65d80067c310043b368d936d13739f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033104591041008444, guid: fe65d80067c310043b368d936d13739f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 3.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033104591041008444, guid: fe65d80067c310043b368d936d13739f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033104591041008444, guid: fe65d80067c310043b368d936d13739f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -171,6 +183,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6033104591041008444, guid: fe65d80067c310043b368d936d13739f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -208,6 +224,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96b7263b9f2cab741b12ccaa55f4a319, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlickSort.Runtime::FlickSort.UI.UIManager
+  referenceResolution: {x: 1080, y: 1920}
+  matchWidthOrHeight: 0.5
+  applySafeAreaToGameplay: 1
 --- !u!114 &175650345
 MonoBehaviour:
   m_ObjectHideFlags: 0
