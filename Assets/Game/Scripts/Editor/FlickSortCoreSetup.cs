@@ -69,7 +69,7 @@ namespace FlickSort.Editor
             for (var level = 1; level <= 10; level++)
             {
                 var settings = LevelSettings.Default(level);
-                settings.openedStackCount = 20;
+                settings.openedStackCount = FlickSortBoardRules.GetAvailableSlotCount(level);
                 settings.colorCount = level < 4 ? 3 : level < 8 ? 4 : 5;
                 settings.initialChipCount = 22 + level * 2;
                 settings.dealChipCount = 7 + level;

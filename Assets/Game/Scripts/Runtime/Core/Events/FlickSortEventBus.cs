@@ -23,6 +23,7 @@ namespace FlickSort.Core
         public static event Action<int> ProgressStarLanded;
         public static event Action<Vector3> MergeCompleted;
         public static event Action InvalidMove;
+        public static event Action<int> RentSlotRequested;
 
         public static void RaiseRequestDeal() => RequestDeal?.Invoke();
         public static void RaiseRequestShuffle() => RequestShuffle?.Invoke();
@@ -44,6 +45,8 @@ namespace FlickSort.Core
         public static void RaiseProgressStarLanded(int starIndex) => ProgressStarLanded?.Invoke(starIndex);
         public static void RaiseMergeCompleted(Vector3 position) => MergeCompleted?.Invoke(position);
         public static void RaiseInvalidMove() => InvalidMove?.Invoke();
+        public static void RaiseRentSlotRequested(int stackIndex) =>
+            RentSlotRequested?.Invoke(stackIndex);
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetOnPlaySessionStart() => Reset();
@@ -67,6 +70,7 @@ namespace FlickSort.Core
             ProgressStarLanded = null;
             MergeCompleted = null;
             InvalidMove = null;
+            RentSlotRequested = null;
         }
     }
 }

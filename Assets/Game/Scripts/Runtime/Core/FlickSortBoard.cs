@@ -30,7 +30,8 @@ namespace FlickSort
         [SerializeField] private List<ChipStackView> _stacks = new();
         private readonly Dictionary<ChipStackView, List<ChipView>> _views = new();
         private readonly Stack<ChipView> _pool = new();
-        private readonly List<ChipStackView> _availableDealStacks = new(20);
+        private readonly List<ChipStackView> _availableDealStacks =
+            new(FlickSortBoardRules.TotalSlotCount);
         private Camera _camera;
         private Transform _chipSpawner;
         private ChipStackView _selected;
@@ -102,7 +103,16 @@ namespace FlickSort
                 return;
             
             var stack = hit.collider.GetComponentInParent<ChipStackView>();
-            if (stack == null || !stack.IsAvailable)
+            if (stack == null)
+                return;
+
+            if (stack.IsRentable)
+            {
+                FlickSortEventBus.RaiseRentSlotRequested(stack.Index);
+                return;
+            }
+
+            if (!stack.IsAvailable)
                 return;
 
             if (_activeSkill == BoardSkillMode.Hammer)
@@ -243,6 +253,20 @@ namespace FlickSort
         }
 
         public void RetryLevel() => StartLevel(_currentLevel);
+
+        public bool UnlockRentedStack(int stackIndex)
+        {
+            if (stackIndex < 0 || stackIndex >= _stacks.Count)
+                return false;
+
+            var stack = _stacks[stackIndex];
+            if (stack == null || !stack.IsRentable)
+                return false;
+
+            stack.SetAccessState(StackAccessState.Available);
+            CollectAvailableDealStacks();
+            return true;
+        }
 
         private void HandleHammerTap(ChipStackView stack)
         {
@@ -637,7 +661,12 @@ namespace FlickSort
                 if (stack == null)
                     continue;
 
-                stack.SetAvailable(i < openedStackCount);
+                var state = i < openedStackCount
+                    ? StackAccessState.Available
+                    : i == openedStackCount
+                        ? StackAccessState.Rent
+                        : StackAccessState.Locked;
+                stack.SetAccessState(state);
             }
         }
 

@@ -5,6 +5,22 @@ using UnityEngine.Serialization;
 
 namespace FlickSort
 {
+    public static class FlickSortBoardRules
+    {
+        public const int TotalSlotCount = 15;
+        public const int InitialAvailableSlotCount = 5;
+        public const int AvailableSlotsPerLevel = 1;
+        public const int FirstLevelNumber = 1;
+
+        public static int GetAvailableSlotCount(int oneBasedLevel)
+        {
+            var completedLevels = Mathf.Max(0, oneBasedLevel - FirstLevelNumber);
+            return Mathf.Min(
+                InitialAvailableSlotCount + completedLevels * AvailableSlotsPerLevel,
+                TotalSlotCount);
+        }
+    }
+
     [CreateAssetMenu(menuName = "Scriptable Objects/Game Config", fileName = "FlickSortGameConfig")]
     public sealed class FlickSortGameConfig : ScriptableObject
     {
@@ -46,6 +62,7 @@ namespace FlickSort
 
             var extra = oneBasedLevel - levels.Count;
             source.levelNumber = oneBasedLevel;
+            source.openedStackCount = FlickSortBoardRules.GetAvailableSlotCount(oneBasedLevel);
             source.requiredChipScore += extra * mergeChipCount * 2;
             source.dealChipCount += extra / 2;
             return source;
@@ -63,7 +80,7 @@ namespace FlickSort
     public struct LevelSettings
     {
         [Min(1)] public int levelNumber;
-        [Range(3, 20)] public int openedStackCount;
+        [Range(0, FlickSortBoardRules.TotalSlotCount)] public int openedStackCount;
         [Range(2, 10)] public int colorCount;
         [Min(1)] public int initialChipCount;
         [Min(1)] public int dealChipCount;
@@ -75,7 +92,7 @@ namespace FlickSort
         public static LevelSettings Default(int level) => new()
         {
             levelNumber = level,
-            openedStackCount = 20,
+            openedStackCount = FlickSortBoardRules.GetAvailableSlotCount(level),
             colorCount = Mathf.Clamp(3 + (level - 1) / 4, 3, 5),
             initialChipCount = 24 + level * 2,
             dealChipCount = 8 + level,
