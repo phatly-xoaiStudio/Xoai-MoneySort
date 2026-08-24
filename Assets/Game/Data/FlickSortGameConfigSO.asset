@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4feab9d37863314a85ef432720ce5b0, type: 3}
   m_Name: FlickSortGameConfigSO
   m_EditorClassIdentifier: Assembly-CSharp::FlickSort.FlickSortGameConfig
+  enableSaveGame: 0
   mergeChipCount: 10
   maxChipLevel: 10
   stackCapacity: 10
@@ -27,6 +28,9 @@ MonoBehaviour:
   hammerFlyDuration: 0.5
   hammerFlyDistance: 1.25
   hammerFlyStagger: 0.025
+  rentSlotDurationSeconds: 60
+  rentSlotFreeUseCount: 2
+  rentSlotCoinPrice: 250
   levels:
   - levelNumber: 1
     openedStackCount: 6

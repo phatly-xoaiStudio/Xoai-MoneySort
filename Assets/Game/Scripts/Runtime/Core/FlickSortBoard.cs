@@ -54,6 +54,7 @@ namespace FlickSort
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
         public int MaxUnlockedChipLevel => _maxUnlockedChipLevel;
+        public FlickSortGameConfig Config => config;
 
         public Material GetChipMaterial(int chipLevel)
         {
@@ -105,12 +106,6 @@ namespace FlickSort
             var stack = hit.collider.GetComponentInParent<ChipStackView>();
             if (stack == null)
                 return;
-
-            if (stack.IsRentable)
-            {
-                FlickSortEventBus.RaiseRentSlotRequested(stack.Index);
-                return;
-            }
 
             if (!stack.IsAvailable)
                 return;
@@ -268,6 +263,123 @@ namespace FlickSort
             return true;
         }
 
+        public bool RentStackForDuration(int stackIndex, float durationSeconds)
+        {
+            if (!UnlockRentedStack(stackIndex))
+                return false;
+
+            StartCoroutine(RentStackRoutine(stackIndex, Mathf.Max(1f, durationSeconds)));
+            return true;
+        }
+
+        private IEnumerator RentStackRoutine(int stackIndex, float durationSeconds)
+        {
+            if (stackIndex < 0 || stackIndex >= _stacks.Count)
+                yield break;
+
+            var stack = _stacks[stackIndex];
+            if (stack == null)
+                yield break;
+
+            stack.SetAccessState(StackAccessState.Rented);
+            var expiresAt = Time.realtimeSinceStartup + durationSeconds;
+            var displayedSeconds = -1;
+            while (Time.realtimeSinceStartup < expiresAt)
+            {
+                var secondsRemaining = Mathf.CeilToInt(expiresAt - Time.realtimeSinceStartup);
+                if (secondsRemaining != displayedSeconds)
+                {
+                    displayedSeconds = secondsRemaining;
+                    stack.SetRentTimeRemaining(secondsRemaining);
+                }
+                yield return null;
+            }
+
+            stack.SetRentTimeRemaining(0f);
+            while (_busy)
+                yield return null;
+
+            if (_selected == stack)
+                ClearSelection();
+            stack.SetAccessState(StackAccessState.RentClosing);
+            CollectAvailableDealStacks();
+
+            if (stack.Model.Count > 0)
+            {
+                ChipStackView destination = null;
+                while (destination == null && stack.Model.Count > 0)
+                {
+                    destination = GetRandomEmptyRegularStack(stack);
+                    if (destination == null)
+                        yield return null;
+                }
+
+                if (destination != null)
+                {
+                    _busy = true;
+                    yield return EvacuateRentedStack(stack, destination);
+                }
+            }
+
+            stack.SetAccessState(StackAccessState.Rent);
+            stack.SetRentTimeRemaining(durationSeconds);
+            CollectAvailableDealStacks();
+            if (_chipUnlockedThisAction || HasReachedRequiredScore())
+                yield return LevelUpRoutine();
+        }
+
+        private ChipStackView GetRandomEmptyRegularStack(ChipStackView rentedStack)
+        {
+            _availableDealStacks.Clear();
+            for (var i = 0; i < _stacks.Count; i++)
+            {
+                var candidate = _stacks[i];
+                if (candidate != null &&
+                    candidate != rentedStack &&
+                    candidate.CanReceiveDeal &&
+                    candidate.Model.Count == 0)
+                {
+                    _availableDealStacks.Add(candidate);
+                }
+            }
+
+            return _availableDealStacks.Count > 0
+                ? _availableDealStacks[_random.Next(_availableDealStacks.Count)]
+                : null;
+        }
+
+        private IEnumerator EvacuateRentedStack(
+            ChipStackView source,
+            ChipStackView destination)
+        {
+            var tokens = new List<ChipToken>(source.Model.Chips);
+            var movingViews = _views[source];
+            source.Model.Clear();
+            destination.Model.AddRange(tokens);
+            _views[source] = new List<ChipView>();
+            _views[destination].AddRange(movingViews);
+
+            var sequence = DOTween.Sequence().SetId(this);
+            for (var i = 0; i < movingViews.Count; i++)
+            {
+                var view = movingViews[i];
+                view.transform.SetParent(destination.ChipRoot, true);
+                view.transform.localScale = Vector3.one;
+                sequence.Join(view.ArcTo(
+                    destination.GetWorldSlot(i, config.chipSpacing),
+                    config.jumpPower * 1.5f,
+                    config.moveDuration,
+                    i * config.chipMoveDelay));
+                sequence.InsertCallback(
+                    config.moveDuration + i * config.chipMoveDelay,
+                    FlickSortEventBus.RaiseChipMoveLanded);
+            }
+
+            yield return sequence.WaitForCompletion();
+            yield return ResolveMerges(destination);
+            _busy = false;
+        }
+
         private void HandleHammerTap(ChipStackView stack)
         {
             if (stack.Model.Count == 0)
@@ -361,7 +473,7 @@ namespace FlickSort
             ClearSelection();
             if (playDealSound)
                 FlickSortEventBus.RaiseDealStarted();
-            var remaining = Mathf.Min(requestedCount, TotalFreeSlots());
+            var remaining = Mathf.Min(requestedCount, TotalDealFreeSlots());
             var sequence = DOTween.Sequence().SetId(this);
             var delay = 0f;
             var safety = 0;
@@ -415,7 +527,7 @@ namespace FlickSort
                 yield break;
             }
 
-            if (checkLoss && TotalFreeSlots() == 0)
+            if (checkLoss && TotalPlayableFreeSlots() == 0)
             {
                 _busy = true;
                 FlickSortEventBus.RaiseLevelLost();
@@ -723,11 +835,22 @@ namespace FlickSort
             for (var i = 0; i < _stacks.Count; i++)
             {
                 var stack = _stacks[i];
-                if (stack != null && stack.IsAvailable && stack.Model.FreeSlots > 0)
+                if (stack != null && stack.CanReceiveDeal && stack.Model.FreeSlots > 0)
                     _availableDealStacks.Add(stack);
             }
         }
-        private int TotalFreeSlots()
+        private int TotalDealFreeSlots()
+        {
+            var total = 0;
+            foreach (var stack in _stacks)
+            {
+                if (stack.CanReceiveDeal)
+                    total += stack.Model.FreeSlots;
+            }
+            return total;
+        }
+
+        private int TotalPlayableFreeSlots()
         {
             var total = 0;
             foreach (var stack in _stacks)

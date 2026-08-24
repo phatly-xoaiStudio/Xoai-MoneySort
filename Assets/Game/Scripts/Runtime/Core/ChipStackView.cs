@@ -1,12 +1,16 @@
 using DG.Tweening;
+using FlickSort.Core;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace FlickSort
 {
     public enum StackAccessState
     {
         Available,
+        Rented,
+        RentClosing,
         Rent,
         Locked
     }
@@ -15,24 +19,33 @@ namespace FlickSort
     public sealed class ChipStackView : MonoBehaviour
     {
         [SerializeField] private GameObject _blockPanel;
-        [Header("Access visuals")]
+        [Header("Access visual groups")]
+        [SerializeField] private GameObject _lockVisualRoot;
+        [SerializeField] private GameObject _rentVisualRoot;
+        [Header("Lock visuals")]
         [SerializeField] private TextMeshPro _statusLabel;
         [SerializeField] private Color _lockedPanelColor = new(0.43f, 0.47f, 0.54f);
         [SerializeField] private Color _lockedLabelColor = Color.white;
         [SerializeField] private Color _rentPanelColor = new(1f, 0.67f, 0.08f);
-        [SerializeField] private Color _rentLabelColor = new(0.22f, 0.12f, 0.02f);
         [SerializeField] private float _statusLabelXWithoutBadge;
         [SerializeField] private float _statusLabelXWithBadge = -0.1f;
         [Header("Next unlock badge")]
         [SerializeField] private GameObject _nextUnlockBadge;
         [SerializeField] private TextMeshPro _nextUnlockLevelLabel;
+        [Header("Rent button")]
+        [SerializeField] private Button _rentButton;
+        [SerializeField] private TextMeshProUGUI _rentDurationLabel;
 
         public int Index { get; private set; }
         public ChipStackModel Model { get; private set; }
         public Transform ChipRoot { get; private set; }
         public StackAccessState AccessState { get; private set; }
-        public bool IsAvailable => AccessState == StackAccessState.Available;
+        public bool IsAvailable =>
+            AccessState == StackAccessState.Available ||
+            AccessState == StackAccessState.Rented ||
+            AccessState == StackAccessState.RentClosing;
         public bool IsRentable => AccessState == StackAccessState.Rent;
+        public bool CanReceiveDeal => AccessState == StackAccessState.Available;
         private BoxCollider _slotBounds;
         private Renderer _blockRenderer;
         private MaterialPropertyBlock _blockProperties;
@@ -40,7 +53,6 @@ namespace FlickSort
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
         private const string LockedLabel = "LOCK";
-        private const string RentLabel = "RENT";
 
         public void Initialize(int index, ChipStackModel model)
         {
@@ -60,12 +72,21 @@ namespace FlickSort
             if (_blockPanel == null)
                 throw new MissingReferenceException(
                     $"{nameof(ChipStackView)} '{name}' requires an authored BlockPanel reference.");
+            if (_lockVisualRoot == null || _rentVisualRoot == null)
+                throw new MissingReferenceException(
+                    $"{nameof(ChipStackView)} '{name}' requires authored lock and rent visual roots.");
             if (_statusLabel == null)
                 throw new MissingReferenceException(
                     $"{nameof(ChipStackView)} '{name}' requires an authored status label reference.");
             if (_nextUnlockBadge == null || _nextUnlockLevelLabel == null)
                 throw new MissingReferenceException(
                     $"{nameof(ChipStackView)} '{name}' requires an authored next-unlock badge.");
+            if (_rentButton == null || _rentDurationLabel == null)
+                throw new MissingReferenceException(
+                    $"{nameof(ChipStackView)} '{name}' requires authored rent UI references.");
+
+            _rentButton.onClick.RemoveListener(OnRentClicked);
+            _rentButton.onClick.AddListener(OnRentClicked);
 
             _blockRenderer = _blockPanel.GetComponent<Renderer>();
             _blockProperties ??= new MaterialPropertyBlock();
@@ -74,14 +95,20 @@ namespace FlickSort
         public void SetAccessState(StackAccessState state, int displayedUnlockLevel = 0)
         {
             AccessState = state;
-            _blockPanel.SetActive(state != StackAccessState.Available);
-            _statusLabel.gameObject.SetActive(state != StackAccessState.Available);
+            var displaysClosedPanel =
+                state == StackAccessState.Locked || state == StackAccessState.Rent;
+            _blockPanel.SetActive(displaysClosedPanel);
+            _lockVisualRoot.SetActive(state == StackAccessState.Locked);
+            _rentVisualRoot.SetActive(
+                state == StackAccessState.Rent ||
+                state == StackAccessState.Rented ||
+                state == StackAccessState.RentClosing);
+            _rentButton.gameObject.SetActive(state == StackAccessState.Rent);
+
             var highlightsNextUnlock =
                 state == StackAccessState.Locked && displayedUnlockLevel > 0;
-            _statusLabel.text = state == StackAccessState.Rent ? RentLabel : LockedLabel;
-            _statusLabel.color = state == StackAccessState.Rent
-                ? _rentLabelColor
-                : _lockedLabelColor;
+            _statusLabel.text = LockedLabel;
+            _statusLabel.color = _lockedLabelColor;
             var statusLabelPosition = _statusLabel.transform.localPosition;
             statusLabelPosition.x = highlightsNextUnlock
                 ? _statusLabelXWithBadge
@@ -92,7 +119,7 @@ namespace FlickSort
             if (highlightsNextUnlock)
                 _nextUnlockLevelLabel.text = displayedUnlockLevel.ToString();
 
-            if (_blockRenderer != null && state != StackAccessState.Available)
+            if (_blockRenderer != null && displaysClosedPanel)
             {
                 var color = state == StackAccessState.Rent
                     ? _rentPanelColor
@@ -107,8 +134,16 @@ namespace FlickSort
                 SetSelected(false);
         }
 
+        public void SetRentTimeRemaining(float seconds)
+        {
+            if (_rentDurationLabel != null)
+                _rentDurationLabel.text = $"{Mathf.Max(0, Mathf.CeilToInt(seconds))}S";
+        }
+
         public void SetAvailable(bool available) => SetAccessState(
             available ? StackAccessState.Available : StackAccessState.Locked);
+
+        private void OnRentClicked() => FlickSortEventBus.RaiseRentSlotRequested(Index);
 
         public Vector3 GetWorldSlot(int index, float spacing)
         {
@@ -127,6 +162,12 @@ namespace FlickSort
         public void InvalidFeedback()
         {
             transform.DOShakePosition(0.2f, 0.08f, 10, 50f, false, true);
+        }
+
+        private void OnDestroy()
+        {
+            if (_rentButton != null)
+                _rentButton.onClick.RemoveListener(OnRentClicked);
         }
     }
 }

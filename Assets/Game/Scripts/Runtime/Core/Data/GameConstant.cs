@@ -5,6 +5,7 @@ public enum UIEnum
     LOADING_UI,
     LEVEL_UP_UI,
     LOSE_UI,
+    RENT_SLOT_UI,
 }
 
 public enum GameSessionState { Loading, Playing, Won, Failed }

@@ -10,6 +10,7 @@ namespace FlickSort.UI
     {
         [SerializeField] private TextMeshProUGUI _levelText;
         [SerializeField] private TextMeshProUGUI _progressText;
+        [SerializeField] private TextMeshProUGUI _moneyText;
         [SerializeField] private Image _progressFill;
         [SerializeField] private Button _dealButton;
         [SerializeField] private Button _shuffleButton;
@@ -56,6 +57,12 @@ namespace FlickSort.UI
                 AnimateProgress(target);
             else
                 SetProgressImmediate(target);
+        }
+
+        public void SetMoney(int amount)
+        {
+            if (_moneyText != null)
+                _moneyText.text = Mathf.Max(0, amount).ToString("N0");
         }
 
         private void OnDealClicked() => FlickSortEventBus.RaiseRequestDeal();
