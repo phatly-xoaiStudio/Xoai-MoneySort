@@ -83,6 +83,48 @@ namespace FlickSort
             return destination.Count == 0 || destination.Top.Color == Top.Color;
         }
 
+        public bool CanFreeMoveGroupAtTo(int chipIndex, ChipStackModel destination)
+        {
+            if (destination == null || ReferenceEquals(this, destination))
+                return false;
+            if (!TryGetColorGroupRange(chipIndex, out _, out var count))
+                return false;
+
+            var selectedColor = _chips[chipIndex].Color;
+            var colorMatches = destination.Count == 0 ||
+                               destination.Top.Color == selectedColor;
+            return colorMatches && destination.FreeSlots >= count;
+        }
+
+        public List<ChipToken> RemoveColorGroupAt(int chipIndex, out int startIndex)
+        {
+            if (!TryGetColorGroupRange(chipIndex, out startIndex, out var count))
+                return new List<ChipToken>();
+
+            var result = _chips.GetRange(startIndex, count);
+            _chips.RemoveRange(startIndex, count);
+            return result;
+        }
+
+        private bool TryGetColorGroupRange(int chipIndex, out int startIndex, out int count)
+        {
+            startIndex = -1;
+            count = 0;
+            if (chipIndex < 0 || chipIndex >= _chips.Count)
+                return false;
+
+            var color = _chips[chipIndex].Color;
+            startIndex = chipIndex;
+            while (startIndex > 0 && _chips[startIndex - 1].Color == color)
+                startIndex--;
+
+            var endIndex = chipIndex;
+            while (endIndex + 1 < _chips.Count && _chips[endIndex + 1].Color == color)
+                endIndex++;
+            count = endIndex - startIndex + 1;
+            return true;
+        }
+
         public List<ChipToken> RemoveTopGroup()
         {
             return RemoveTopGroup(GetTopGroupCount());

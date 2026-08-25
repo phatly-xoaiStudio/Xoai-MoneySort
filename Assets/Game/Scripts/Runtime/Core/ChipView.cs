@@ -13,6 +13,7 @@ namespace FlickSort
 
         private Material[][] _sharedMaterialSlots;
         private Tween _activeTween;
+        private float _selectionDepthOffset;
 
         public ChipToken Token { get; private set; }
 
@@ -24,8 +25,17 @@ namespace FlickSort
         public void Initialize(ChipToken token, Material material)
         {
             CacheReferences();
+            SetSelectionDepthOffset(0f);
             SetToken(token, material);
             SetTrail(false);
+        }
+
+        public void SetSelectionDepthOffset(float offset)
+        {
+            var localPosition = transform.localPosition;
+            localPosition.z += offset - _selectionDepthOffset;
+            transform.localPosition = localPosition;
+            _selectionDepthOffset = offset;
         }
 
         public void SetToken(ChipToken token, Material material)

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6637320678441935156}
   - component: {fileID: 7000000000000000003}
+  - component: {fileID: 3187407705835062557}
   m_Layer: 0
   m_Name: Chip
   m_TagString: Untagged
@@ -51,6 +52,27 @@ MonoBehaviour:
   _trails:
   - {fileID: 2811925977138337979}
   materialChangeSlots: 02000000
+--- !u!65 &3187407705835062557
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909988381792657717}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07466377, y: 0.39200005, z: 0.392}
+  m_Center: {x: 0.0140875075, y: 0, z: 0}
 --- !u!1 &7000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

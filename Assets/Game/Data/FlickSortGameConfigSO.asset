@@ -25,6 +25,7 @@ MonoBehaviour:
   mergeDuration: 0.22
   chipMoveDelay: 0.045
   jumpPower: 1.5
+  selectedChipDepthOffset: 0.05
   hammerFlyDuration: 0.5
   hammerFlyDistance: 1.25
   hammerFlyStagger: 0.025

@@ -175,6 +175,16 @@ namespace FlickSort
                 ChipRoot.position.z);
         }
 
+        public float GetScreenTapRadius(Camera camera)
+        {
+            _slotBounds ??= GetComponent<BoxCollider>();
+            var bounds = _slotBounds.bounds;
+            var center = (Vector2)camera.WorldToScreenPoint(bounds.center);
+            var rightEdge = (Vector2)camera.WorldToScreenPoint(
+                bounds.center + camera.transform.right * bounds.extents.x);
+            return Mathf.Max(1f, Vector2.Distance(center, rightEdge));
+        }
+
         public void SetSelected(bool selected)
         {
             transform.DOScale(selected ? 1.05f : 1f, 0.12f);

@@ -47,6 +47,55 @@ namespace FlickSort.Tests
         }
 
         [Test]
+        public void FreeMove_AllowsSelectedColorGroupToMatchingDestination()
+        {
+            var source = CreateStack(10, ChipColor.Blue, 1, 2);
+            var destination = CreateStack(3, ChipColor.Blue, 2, 1);
+
+            Assert.That(source.CanFreeMoveGroupAtTo(0, destination), Is.True);
+        }
+
+        [Test]
+        public void FreeMove_RejectsFullDestination()
+        {
+            var source = CreateStack(10, ChipColor.Blue, 1, 2);
+            var destination = CreateStack(2, ChipColor.Yellow, 2, 1);
+
+            destination.TryAdd(new ChipToken(ChipColor.Red, 0));
+            Assert.That(source.CanFreeMoveGroupAtTo(1, destination), Is.False);
+        }
+
+        [Test]
+        public void FreeMove_RemovesTheSelectedContiguousColorGroupFromTheMiddle()
+        {
+            var source = new ChipStackModel(10);
+            source.TryAdd(new ChipToken(ChipColor.Red, 0));
+            source.TryAdd(new ChipToken(ChipColor.Blue, 1));
+            source.TryAdd(new ChipToken(ChipColor.Blue, 1));
+            source.TryAdd(new ChipToken(ChipColor.Yellow, 2));
+            var destination = new ChipStackModel(10);
+
+            Assert.That(source.CanFreeMoveGroupAtTo(1, destination), Is.True);
+            var moved = source.RemoveColorGroupAt(1, out var startIndex);
+
+            Assert.That(startIndex, Is.EqualTo(1));
+            Assert.That(moved.Count, Is.EqualTo(2));
+            Assert.That(moved[0].Color, Is.EqualTo(ChipColor.Blue));
+            Assert.That(source.Count, Is.EqualTo(2));
+            Assert.That(source.Chips[0].Color, Is.EqualTo(ChipColor.Red));
+            Assert.That(source.Chips[1].Color, Is.EqualTo(ChipColor.Yellow));
+        }
+
+        [Test]
+        public void FreeMove_RejectsDifferentColorDestination()
+        {
+            var source = CreateStack(10, ChipColor.Blue, 1, 2);
+            var destination = CreateStack(10, ChipColor.Pink, 2, 1);
+
+            Assert.That(source.CanFreeMoveGroupAtTo(0, destination), Is.False);
+        }
+
+        [Test]
         public void Move_RejectsFullDestination()
         {
             var source = CreateStack(10, ChipColor.Red, 1, 2);

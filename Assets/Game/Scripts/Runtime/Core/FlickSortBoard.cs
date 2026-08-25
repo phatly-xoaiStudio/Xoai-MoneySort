@@ -36,6 +36,7 @@ namespace FlickSort
         private Camera _camera;
         private Transform _chipSpawner;
         private ChipStackView _selected;
+        private int _selectedFreeMoveChipIndex = -1;
         private LevelSettings _level;
         private System.Random _random;
         private bool _busy;
@@ -102,12 +103,8 @@ namespace FlickSort
             if (_busy || Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
                 return;
             
-            var ray = _camera.ScreenPointToRay(Pointer.current.position.ReadValue());
-            if (!Physics.Raycast(ray, out var hit, 100f))
-                return;
-            
-            var stack = hit.collider.GetComponentInParent<ChipStackView>();
-            if (stack == null)
+            var pointerPosition = Pointer.current.position.ReadValue();
+            if (!TryGetTappedStack(pointerPosition, out var stack, out var chipIndex))
                 return;
 
             if (!stack.IsAvailable)
@@ -121,7 +118,7 @@ namespace FlickSort
 
             if (_activeSkill == BoardSkillMode.FreeMove)
             {
-                HandleFreeMoveTap(stack);
+                HandleFreeMoveTap(stack, chipIndex);
                 return;
             }
 
@@ -450,28 +447,39 @@ namespace FlickSort
             StartCoroutine(HammerRoutine(stack));
         }
 
-        private void HandleFreeMoveTap(ChipStackView stack)
+        private void HandleFreeMoveTap(ChipStackView stack, int chipIndex)
         {
             if (_selected == null)
             {
-                if (stack.Model.Count == 0)
+                if (chipIndex < 0 || chipIndex >= stack.Model.Count)
                 {
                     stack.InvalidFeedback();
                     return;
                 }
 
                 _selected = stack;
+                _selectedFreeMoveChipIndex = chipIndex;
                 _selected.SetSelected(true);
+                SetFreeMoveGroupSelected(true);
                 return;
             }
 
             if (_selected == stack)
             {
-                ClearSelection();
+                if (chipIndex == _selectedFreeMoveChipIndex)
+                    ClearSelection();
+                else if (chipIndex >= 0 && chipIndex < stack.Model.Count)
+                {
+                    SetFreeMoveGroupSelected(false);
+                    _selectedFreeMoveChipIndex = chipIndex;
+                    SetFreeMoveGroupSelected(true);
+                }
                 return;
             }
 
-            if (stack.Model.FreeSlots <= 0)
+            if (!_selected.Model.CanFreeMoveGroupAtTo(
+                    _selectedFreeMoveChipIndex,
+                    stack.Model))
             {
                 stack.InvalidFeedback();
                 FlickSortEventBus.RaiseInvalidMove();
@@ -479,10 +487,84 @@ namespace FlickSort
             }
 
             var source = _selected;
+            var selectedChipIndex = _selectedFreeMoveChipIndex;
             ClearSelection();
             _activeSkill = BoardSkillMode.None;
             FlickSortEventBus.RaiseBoosterUsed(BoosterType.FreeMove);
-            StartCoroutine(MoveRoutine(source, stack));
+            StartCoroutine(FreeMoveRoutine(source, stack, selectedChipIndex));
+        }
+
+        private bool TryGetTappedStack(
+            Vector2 pointerPosition,
+            out ChipStackView selectedStack,
+            out int selectedChipIndex)
+        {
+            selectedStack = null;
+            selectedChipIndex = -1;
+            var ray = _camera.ScreenPointToRay(pointerPosition);
+            var chipHits = Physics.RaycastAll(ray, 100f);
+            var closestChipHitDistance = float.MaxValue;
+            for (var hitIndex = 0; hitIndex < chipHits.Length; hitIndex++)
+            {
+                var chipView = chipHits[hitIndex].collider.GetComponentInParent<ChipView>();
+                if (chipView == null || chipHits[hitIndex].distance >= closestChipHitDistance)
+                    continue;
+
+                var stack = chipView.GetComponentInParent<ChipStackView>();
+                if (stack == null || !stack.IsAvailable || !_views.TryGetValue(stack, out var views))
+                    continue;
+                var chipIndex = views.IndexOf(chipView);
+                if (chipIndex < 0)
+                    continue;
+
+                closestChipHitDistance = chipHits[hitIndex].distance;
+                selectedStack = stack;
+                selectedChipIndex = chipIndex;
+            }
+            if (selectedStack != null)
+                return true;
+
+            var bestScreenDistance = float.MaxValue;
+            for (var stackIndex = 0; stackIndex < _stacks.Count; stackIndex++)
+            {
+                var candidate = _stacks[stackIndex];
+                if (candidate == null || !candidate.IsAvailable || !_views.ContainsKey(candidate))
+                    continue;
+
+                var candidateChipIndex = -1;
+                var candidateViews = _views[candidate];
+                var candidateDistance = float.MaxValue;
+                if (candidateViews.Count == 0)
+                {
+                    candidateDistance = Vector2.SqrMagnitude(
+                        (Vector2)_camera.WorldToScreenPoint(candidate.transform.position) -
+                        pointerPosition);
+                }
+                else
+                {
+                    for (var chipIndex = 0; chipIndex < candidateViews.Count; chipIndex++)
+                    {
+                        var screenPosition =
+                            (Vector2)_camera.WorldToScreenPoint(candidateViews[chipIndex].transform.position);
+                        var distance = Vector2.SqrMagnitude(screenPosition - pointerPosition);
+                        if (distance >= candidateDistance)
+                            continue;
+                        candidateDistance = distance;
+                        candidateChipIndex = chipIndex;
+                    }
+                }
+
+                var tapRadius = candidate.GetScreenTapRadius(_camera);
+                if (candidateDistance > tapRadius * tapRadius)
+                    continue;
+                if (candidateDistance >= bestScreenDistance)
+                    continue;
+                bestScreenDistance = candidateDistance;
+                selectedStack = candidate;
+                selectedChipIndex = candidateChipIndex;
+            }
+
+            return selectedStack != null;
         }
 
         private void HandleStackTap(ChipStackView stack)
@@ -547,6 +629,51 @@ namespace FlickSort
                     FlickSortEventBus.RaiseChipMoveLanded);
             }
             yield return sequence.WaitForCompletion();
+            yield return ResolveMerges(destination);
+            if (_chipUnlockedThisAction || HasReachedRequiredScore())
+            {
+                yield return LevelUpRoutine();
+                yield break;
+            }
+            _busy = false;
+        }
+
+        private IEnumerator FreeMoveRoutine(
+            ChipStackView source,
+            ChipStackView destination,
+            int selectedChipIndex)
+        {
+            _busy = true;
+            var tokens = source.Model.RemoveColorGroupAt(selectedChipIndex, out var sourceStartIndex);
+            var sourceViews = _views[source];
+            var movingViews = sourceViews.GetRange(sourceStartIndex, tokens.Count);
+            sourceViews.RemoveRange(sourceStartIndex, tokens.Count);
+            var destinationStartIndex = destination.Model.Count;
+            destination.Model.AddRange(tokens);
+            _views[destination].AddRange(movingViews);
+
+            var sequence = DOTween.Sequence().SetId(this);
+            for (var i = sourceStartIndex; i < sourceViews.Count; i++)
+            {
+                sequence.Join(sourceViews[i].DealTo(
+                    source.GetWorldSlot(i, config.chipSpacing),
+                    config.moveDuration,
+                    0f));
+            }
+            for (var i = 0; i < movingViews.Count; i++)
+            {
+                movingViews[i].transform.SetParent(destination.ChipRoot, true);
+                movingViews[i].transform.localScale = Vector3.one;
+                sequence.Join(movingViews[i].ArcTo(
+                    destination.GetWorldSlot(destinationStartIndex + i, config.chipSpacing),
+                    config.jumpPower * 1.5f,
+                    config.moveDuration,
+                    i * config.chipMoveDelay));
+            }
+
+            sequence.InsertCallback(config.moveDuration, FlickSortEventBus.RaiseChipMoveLanded);
+            yield return sequence.WaitForCompletion();
+            yield return ResolveMerges(source);
             yield return ResolveMerges(destination);
             if (_chipUnlockedThisAction || HasReachedRequiredScore())
             {
@@ -953,8 +1080,33 @@ namespace FlickSort
         private void ClearSelection()
         {
             if (_selected != null)
+            {
+                SetFreeMoveGroupSelected(false);
                 _selected.SetSelected(false);
+            }
             _selected = null;
+            _selectedFreeMoveChipIndex = -1;
+        }
+
+        private void SetFreeMoveGroupSelected(bool selected)
+        {
+            if (_selected == null || _selectedFreeMoveChipIndex < 0 ||
+                !_views.TryGetValue(_selected, out var chipViews) ||
+                _selectedFreeMoveChipIndex >= chipViews.Count)
+                return;
+
+            var color = chipViews[_selectedFreeMoveChipIndex].Token.Color;
+            var startIndex = _selectedFreeMoveChipIndex;
+            while (startIndex > 0 && chipViews[startIndex - 1].Token.Color == color)
+                startIndex--;
+
+            var endIndex = _selectedFreeMoveChipIndex;
+            while (endIndex + 1 < chipViews.Count && chipViews[endIndex + 1].Token.Color == color)
+                endIndex++;
+
+            var depthOffset = selected ? config.selectedChipDepthOffset : 0f;
+            for (var i = startIndex; i <= endIndex; i++)
+                chipViews[i].SetSelectionDepthOffset(depthOffset);
         }
 
         private void CollectAvailableDealStacks()
