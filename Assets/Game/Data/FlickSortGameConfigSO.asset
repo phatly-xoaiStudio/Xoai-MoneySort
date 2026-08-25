@@ -28,6 +28,12 @@ MonoBehaviour:
   hammerFlyDuration: 0.5
   hammerFlyDistance: 1.25
   hammerFlyStagger: 0.025
+  shuffleUnlockLevel: 2
+  hammerUnlockLevel: 4
+  freeMoveUnlockLevel: 6
+  defaultShuffleCount: 1
+  defaultHammerCount: 1
+  defaultFreeMoveCount: 1
   rentSlotDurationSeconds: 60
   rentSlotFreeUseCount: 2
   rentSlotCoinPrice: 250

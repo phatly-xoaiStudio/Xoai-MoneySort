@@ -15,6 +15,18 @@ namespace FlickSort.UI
         [SerializeField] private Button _dealButton;
         [SerializeField] private Button _shuffleButton;
         [SerializeField] private Button _hammerButton;
+        [SerializeField] private Button _freeMoveButton;
+        [Header("Booster State")]
+        [SerializeField] private TextMeshProUGUI _shuffleCountText;
+        [SerializeField] private TextMeshProUGUI _hammerCountText;
+        [SerializeField] private TextMeshProUGUI _freeMoveCountText;
+        [SerializeField] private GameObject _shuffleLockRoot;
+        [SerializeField] private GameObject _hammerLockRoot;
+        [SerializeField] private GameObject _freeMoveLockRoot;
+        [SerializeField] private TextMeshProUGUI _shuffleLockText;
+        [SerializeField] private TextMeshProUGUI _hammerLockText;
+        [SerializeField] private TextMeshProUGUI _freeMoveLockText;
+        [SerializeField] private GameplayCheatUI _cheatUI;
 
         [Header("Progress Star Animation")]
         [SerializeField] private RectTransform _starSpawnPoint;
@@ -37,6 +49,7 @@ namespace FlickSort.UI
             _dealButton.onClick.AddListener(OnDealClicked);
             _shuffleButton.onClick.AddListener(OnShuffleClicked);
             _hammerButton.onClick.AddListener(OnHammerClicked);
+            _freeMoveButton.onClick.AddListener(OnFreeMoveClicked);
             HideFlyingStars();
         }
 
@@ -65,9 +78,69 @@ namespace FlickSort.UI
                 _moneyText.text = Mathf.Max(0, amount).ToString("N0");
         }
 
+        public void InitializeCheats(
+            System.Action win,
+            System.Action lose,
+            System.Action<int> goToLevel,
+            System.Action<BoosterType> addBooster,
+            System.Action<int> addCoins)
+        {
+            if (_cheatUI == null)
+                throw new MissingReferenceException("Gameplay UI requires an authored cheat panel.");
+            _cheatUI.Initialize(win, lose, goToLevel, addBooster, addCoins);
+        }
+
+        public void SetCheatBoosterCounts(int shuffle, int hammer, int freeMove) =>
+            _cheatUI?.SetBoosterCounts(shuffle, hammer, freeMove);
+
         private void OnDealClicked() => FlickSortEventBus.RaiseRequestDeal();
         private void OnShuffleClicked() => FlickSortEventBus.RaiseRequestShuffle();
         private void OnHammerClicked() => FlickSortEventBus.RaiseRequestHammer();
+        private void OnFreeMoveClicked() => FlickSortEventBus.RaiseRequestFreeMove();
+
+        public void SetBoosterState(
+            BoosterType type,
+            int count,
+            bool unlocked,
+            int unlockLevel)
+        {
+            var button = type switch
+            {
+                BoosterType.Shuffle => _shuffleButton,
+                BoosterType.Hammer => _hammerButton,
+                BoosterType.FreeMove => _freeMoveButton,
+                _ => null
+            };
+            var countText = type switch
+            {
+                BoosterType.Shuffle => _shuffleCountText,
+                BoosterType.Hammer => _hammerCountText,
+                BoosterType.FreeMove => _freeMoveCountText,
+                _ => null
+            };
+            var lockRoot = type switch
+            {
+                BoosterType.Shuffle => _shuffleLockRoot,
+                BoosterType.Hammer => _hammerLockRoot,
+                BoosterType.FreeMove => _freeMoveLockRoot,
+                _ => null
+            };
+            var lockText = type switch
+            {
+                BoosterType.Shuffle => _shuffleLockText,
+                BoosterType.Hammer => _hammerLockText,
+                BoosterType.FreeMove => _freeMoveLockText,
+                _ => null
+            };
+
+            if (button == null || countText == null || lockRoot == null || lockText == null)
+                throw new MissingReferenceException($"Authored UI for {type} is missing.");
+
+            countText.text = Mathf.Max(0, count).ToString();
+            lockRoot.SetActive(!unlocked);
+            lockText.text = $"LV {unlockLevel}";
+            button.interactable = unlocked && count > 0;
+        }
 
         private void AnimateProgress(float target)
         {
@@ -196,6 +269,7 @@ namespace FlickSort.UI
             if (_dealButton != null) _dealButton.onClick.RemoveListener(OnDealClicked);
             if (_shuffleButton != null) _shuffleButton.onClick.RemoveListener(OnShuffleClicked);
             if (_hammerButton != null) _hammerButton.onClick.RemoveListener(OnHammerClicked);
+            if (_freeMoveButton != null) _freeMoveButton.onClick.RemoveListener(OnFreeMoveClicked);
         }
     }
 }

@@ -114,11 +114,7 @@ namespace FlickSort
 
     [CreateAssetMenu(menuName = "Scriptable Objects/Game Config", fileName = "FlickSortGameConfig")]
     public sealed class FlickSortGameConfig : ScriptableObject
-    {
-        [Header("Save Game")]
-        [Tooltip("Load and persist player progress. When disabled, every game starts from default values.")]
-        public bool enableSaveGame = true;
-
+    {       
         [Header("Core rules")]
         [Min(2)] public int mergeChipCount = 10;
         [Range(1, 10)] public int maxChipLevel = 10;
@@ -141,6 +137,14 @@ namespace FlickSort
         [Min(0.05f)] public float hammerFlyDuration = 0.5f;
         [Min(0.1f)] public float hammerFlyDistance = 1.25f;
         [Min(0f)] public float hammerFlyStagger = 0.025f;
+
+        [Header("Boosters")]
+        [Min(1)] public int shuffleUnlockLevel = 2;
+        [Min(1)] public int hammerUnlockLevel = 4;
+        [Min(1)] public int freeMoveUnlockLevel = 6;
+        [Min(0)] public int defaultShuffleCount = 1;
+        [Min(0)] public int defaultHammerCount = 1;
+        [Min(0)] public int defaultFreeMoveCount = 1;
 
         [Header("Rent Slot")]
         [Min(1f)] public float rentSlotDurationSeconds = 60f;

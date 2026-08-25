@@ -13,7 +13,8 @@ namespace FlickSort
         private enum BoardSkillMode
         {
             None,
-            Hammer
+            Hammer,
+            FreeMove
         }
 
         private static readonly int ChipColorCount =
@@ -114,6 +115,12 @@ namespace FlickSort
             if (_activeSkill == BoardSkillMode.Hammer)
             {
                 HandleHammerTap(stack);
+                return;
+            }
+
+            if (_activeSkill == BoardSkillMode.FreeMove)
+            {
+                HandleFreeMoveTap(stack);
                 return;
             }
 
@@ -229,13 +236,14 @@ namespace FlickSort
             }
         }
 
-        public void Shuffle()
+        public bool TryShuffle()
         {
-            if (!_busy)
-            {
-                _activeSkill = BoardSkillMode.None;
-                StartCoroutine(ShuffleRoutine());
-            }
+            if (_busy)
+                return false;
+
+            _activeSkill = BoardSkillMode.None;
+            StartCoroutine(ShuffleRoutine());
+            return true;
         }
 
         public void ActivateHammer()
@@ -249,7 +257,38 @@ namespace FlickSort
                 : BoardSkillMode.Hammer;
         }
 
+        public void ActivateFreeMove()
+        {
+            if (_busy)
+                return;
+
+            ClearSelection();
+            _activeSkill = _activeSkill == BoardSkillMode.FreeMove
+                ? BoardSkillMode.None
+                : BoardSkillMode.FreeMove;
+        }
+
         public void RetryLevel() => StartLevel(_currentLevel);
+
+        public void CheatWinLevel()
+        {
+            StopAllCoroutines();
+            DOTween.Kill(this, true);
+            ClearSelection();
+            _activeRentStackIndex = -1;
+            _busy = false;
+            _chipUnlockedThisAction = false;
+            StartCoroutine(LevelUpRoutine());
+        }
+
+        public void CheatLoseLevel()
+        {
+            StopAllCoroutines();
+            DOTween.Kill(this, true);
+            ClearSelection();
+            _busy = true;
+            FlickSortEventBus.RaiseLevelLost();
+        }
 
         public bool UnlockRentedStack(int stackIndex)
         {
@@ -398,7 +437,43 @@ namespace FlickSort
             }
 
             _activeSkill = BoardSkillMode.None;
+            FlickSortEventBus.RaiseBoosterUsed(BoosterType.Hammer);
             StartCoroutine(HammerRoutine(stack));
+        }
+
+        private void HandleFreeMoveTap(ChipStackView stack)
+        {
+            if (_selected == null)
+            {
+                if (stack.Model.Count == 0)
+                {
+                    stack.InvalidFeedback();
+                    return;
+                }
+
+                _selected = stack;
+                _selected.SetSelected(true);
+                return;
+            }
+
+            if (_selected == stack)
+            {
+                ClearSelection();
+                return;
+            }
+
+            if (stack.Model.FreeSlots <= 0)
+            {
+                stack.InvalidFeedback();
+                FlickSortEventBus.RaiseInvalidMove();
+                return;
+            }
+
+            var source = _selected;
+            ClearSelection();
+            _activeSkill = BoardSkillMode.None;
+            FlickSortEventBus.RaiseBoosterUsed(BoosterType.FreeMove);
+            StartCoroutine(MoveRoutine(source, stack));
         }
 
         private void HandleStackTap(ChipStackView stack)

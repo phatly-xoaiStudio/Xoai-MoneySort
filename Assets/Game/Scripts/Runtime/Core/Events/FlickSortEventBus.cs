@@ -9,6 +9,8 @@ namespace FlickSort.Core
         public static event Action RequestDeal;
         public static event Action RequestShuffle;
         public static event Action RequestHammer;
+        public static event Action RequestFreeMove;
+        public static event Action<BoosterType> BoosterUsed;
         public static event Action RequestRetry;
         public static event Action RequestNextLevel;
         public static event Action<bool> PauseChanged;
@@ -28,6 +30,8 @@ namespace FlickSort.Core
         public static void RaiseRequestDeal() => RequestDeal?.Invoke();
         public static void RaiseRequestShuffle() => RequestShuffle?.Invoke();
         public static void RaiseRequestHammer() => RequestHammer?.Invoke();
+        public static void RaiseRequestFreeMove() => RequestFreeMove?.Invoke();
+        public static void RaiseBoosterUsed(BoosterType type) => BoosterUsed?.Invoke(type);
         public static void RaiseRequestRetry() => RequestRetry?.Invoke();
         public static void RaiseRequestNextLevel() => RequestNextLevel?.Invoke();
         public static void RaisePauseChanged(bool isPaused) => PauseChanged?.Invoke(isPaused);
@@ -56,6 +60,8 @@ namespace FlickSort.Core
             RequestDeal = null;
             RequestShuffle = null;
             RequestHammer = null;
+            RequestFreeMove = null;
+            BoosterUsed = null;
             RequestRetry = null;
             RequestNextLevel = null;
             PauseChanged = null;
