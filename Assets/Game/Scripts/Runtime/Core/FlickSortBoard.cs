@@ -52,6 +52,7 @@ namespace FlickSort
         private Vector2 _authoredBackgroundWorldSize;
         private Vector2Int _lastScreenSize;
         private int _activeRentStackIndex = -1;
+        private int _freeRentUsesRemaining;
 
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
@@ -314,6 +315,14 @@ namespace FlickSort
             _activeRentStackIndex = stackIndex;
             StartCoroutine(RentStackRoutine(stackIndex, Mathf.Max(1f, durationSeconds)));
             return true;
+        }
+
+        public void SetFreeRentUsesRemaining(int remaining)
+        {
+            _freeRentUsesRemaining = Mathf.Max(0, remaining);
+            var rentStackIndex = FlickSortBoardRules.GetRentSlotIndex(_currentLevel);
+            if (rentStackIndex >= 0 && rentStackIndex < _stacks.Count)
+                _stacks[rentStackIndex]?.SetFreeRentUsesRemaining(_freeRentUsesRemaining);
         }
 
         private IEnumerator RentStackRoutine(int stackIndex, float durationSeconds)
@@ -872,6 +881,8 @@ namespace FlickSort
                     ? FlickSortBoardRules.GetUnlockLevel(i, _currentLevel)
                     : 0;
                 stack.SetAccessState(state, displayedUnlockLevel);
+                if (state == StackAccessState.Rent)
+                    stack.SetFreeRentUsesRemaining(_freeRentUsesRemaining);
             }
         }
 

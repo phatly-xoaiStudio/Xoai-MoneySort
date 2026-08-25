@@ -44,6 +44,7 @@ namespace FlickSort
             _rentUseCount = SaveGameEnabled
                 ? PlayerPrefs.GetInt(rentUseCountSaveKey, 0)
                 : 0;
+            UpdateFreeRentBadge();
             var config = board.Config;
             _boosters = new BoosterInventory(
                 LoadBooster(shuffleSaveKey, config.defaultShuffleCount),
@@ -147,6 +148,12 @@ namespace FlickSort
         {
             var config = board.Config;
             var freeUsesRemaining = Mathf.Max(0, config.rentSlotFreeUseCount - _rentUseCount);
+            if (freeUsesRemaining > 0)
+            {
+                ConfirmRent(stackIndex);
+                return;
+            }
+
             uiManager.ShowUI(
                 UIEnum.RENT_SLOT_UI,
                 new RentSlotOffer(
@@ -154,7 +161,7 @@ namespace FlickSort
                     config.rentSlotCoinPrice,
                     Money,
                     freeUsesRemaining,
-                    () => ConfirmRent(stackIndex),
+                    null,
                     () => ConfirmRent(stackIndex),
                     () => uiManager.HideUI(UIEnum.RENT_SLOT_UI)));
         }
@@ -181,8 +188,19 @@ namespace FlickSort
                     PlayerPrefs.SetInt(rentUseCountSaveKey, _rentUseCount);
                     PlayerPrefs.Save();
                 }
+                UpdateFreeRentBadge();
             }
             uiManager.HideUI(UIEnum.RENT_SLOT_UI);
+        }
+
+        private void UpdateFreeRentBadge()
+        {
+            if (board == null)
+                return;
+            var remaining = Mathf.Max(
+                0,
+                board.Config.rentSlotFreeUseCount - _rentUseCount);
+            board.SetFreeRentUsesRemaining(remaining);
         }
 
         private void OnDealRequested() => board?.Deal();

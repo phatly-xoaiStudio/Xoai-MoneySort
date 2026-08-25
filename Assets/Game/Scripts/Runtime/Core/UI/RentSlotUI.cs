@@ -62,19 +62,15 @@ namespace FlickSort.UI
 
             _durationText.text = $"{Mathf.RoundToInt(_offer.DurationSeconds)} SEC";
             _coinPriceText.text = _offer.CoinPrice.ToString("N0");
-            _freeText.text = _offer.FreeUsesRemaining > 0
-                ? $"FREE ({_offer.FreeUsesRemaining} LEFT)"
-                : "FREE";
-            var usesFreeRent = _offer.FreeUsesRemaining > 0;
-            _freeButton.gameObject.SetActive(usesFreeRent);
-            _coinButton.gameObject.SetActive(!usesFreeRent);
+            _freeText.text = "WATCH AD";
+            _freeButton.gameObject.SetActive(true);
+            _freeButton.interactable = _offer.ConfirmFree != null;
+            _coinButton.gameObject.SetActive(true);
             _coinButton.interactable =
-                !usesFreeRent && _offer.CurrentMoney >= _offer.CoinPrice;
-            _messageText.text = usesFreeRent
-                ? "FREE RENT"
-                : _coinButton.interactable
-                    ? "GET RENT SLOT"
-                    : $"NEED {_offer.CoinPrice - _offer.CurrentMoney:N0} MORE COINS";
+                _offer.CurrentMoney >= _offer.CoinPrice;
+            _messageText.text = _coinButton.interactable
+                ? "GET RENT SLOT"
+                : $"NEED {_offer.CoinPrice - _offer.CurrentMoney:N0} MORE COINS";
         }
 
         public override void Hide()

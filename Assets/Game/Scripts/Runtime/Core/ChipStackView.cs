@@ -35,6 +35,8 @@ namespace FlickSort
         [Header("Rent button")]
         [SerializeField] private Button _rentButton;
         [SerializeField] private TextMeshProUGUI _rentDurationLabel;
+        [SerializeField] private GameObject _freeRentBadge;
+        [SerializeField] private TextMeshProUGUI _freeRentCountLabel;
 
         public int Index { get; private set; }
         public ChipStackModel Model { get; private set; }
@@ -49,6 +51,7 @@ namespace FlickSort
         private BoxCollider _slotBounds;
         private Renderer _blockRenderer;
         private MaterialPropertyBlock _blockProperties;
+        private int _freeRentUsesRemaining;
 
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
@@ -81,7 +84,8 @@ namespace FlickSort
             if (_nextUnlockBadge == null || _nextUnlockLevelLabel == null)
                 throw new MissingReferenceException(
                     $"{nameof(ChipStackView)} '{name}' requires an authored next-unlock badge.");
-            if (_rentButton == null || _rentDurationLabel == null)
+            if (_rentButton == null || _rentDurationLabel == null ||
+                _freeRentBadge == null || _freeRentCountLabel == null)
                 throw new MissingReferenceException(
                     $"{nameof(ChipStackView)} '{name}' requires authored rent UI references.");
 
@@ -104,6 +108,7 @@ namespace FlickSort
                 state == StackAccessState.Rented ||
                 state == StackAccessState.RentClosing);
             _rentButton.gameObject.SetActive(state == StackAccessState.Rent);
+            RefreshFreeRentBadge();
 
             var highlightsNextUnlock =
                 state == StackAccessState.Locked && displayedUnlockLevel > 0;
@@ -138,6 +143,22 @@ namespace FlickSort
         {
             if (_rentDurationLabel != null)
                 _rentDurationLabel.text = $"{Mathf.Max(0, Mathf.CeilToInt(seconds))}S";
+        }
+
+        public void SetFreeRentUsesRemaining(int remaining)
+        {
+            _freeRentUsesRemaining = Mathf.Max(0, remaining);
+            RefreshFreeRentBadge();
+        }
+
+        private void RefreshFreeRentBadge()
+        {
+            if (_freeRentBadge == null || _freeRentCountLabel == null)
+                return;
+            var visible = AccessState == StackAccessState.Rent && _freeRentUsesRemaining > 0;
+            _freeRentBadge.SetActive(visible);
+            if (visible)
+                _freeRentCountLabel.text = _freeRentUsesRemaining.ToString();
         }
 
         public void SetAvailable(bool available) => SetAccessState(
