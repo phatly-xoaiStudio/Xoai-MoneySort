@@ -16,6 +16,7 @@ MonoBehaviour:
   maxChipLevel: 10
   stackCapacity: 10
   defaultDealChipCount: 10
+  minimumDealColorGroupSize: 3
   randomChipsPerStack: {x: 1, y: 3}
   chipSpacing: 0.11
   stackSpacing: 1.45

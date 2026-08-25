@@ -571,21 +571,42 @@ namespace FlickSort
             var safety = 0;
             var dealtHighestUnlockedChip = false;
 
-            while (remaining > 0 && safety++ < 1000)
+            while (remaining >= config.minimumDealColorGroupSize && safety++ < 1000)
             {
                 CollectAvailableDealStacks();
+                for (var i = _availableDealStacks.Count - 1; i >= 0; i--)
+                {
+                    if (_availableDealStacks[i].Model.FreeSlots < config.minimumDealColorGroupSize)
+                        _availableDealStacks.RemoveAt(i);
+                }
                 if (_availableDealStacks.Count == 0)
                     break;
 
-                var stack = _availableDealStacks[_random.Next(_availableDealStacks.Count)];
                 var range = _level.chipsPerStackRange.y > 0 ? _level.chipsPerStackRange : config.randomChipsPerStack;
-                var amount = Mathf.Min(remaining, Mathf.Min(stack.Model.FreeSlots, _random.Next(range.x, range.y + 1)));
+                var largestAvailableSpace = 0;
+                for (var i = 0; i < _availableDealStacks.Count; i++)
+                    largestAvailableSpace = Mathf.Max(largestAvailableSpace, _availableDealStacks[i].Model.FreeSlots);
+                var amount = FlickSortBoardRules.GetDealGroupSize(
+                    remaining,
+                    config.minimumDealColorGroupSize,
+                    range.y,
+                    largestAvailableSpace,
+                    _random);
+                if (amount < config.minimumDealColorGroupSize)
+                    break;
+
+                for (var i = _availableDealStacks.Count - 1; i >= 0; i--)
+                {
+                    if (_availableDealStacks[i].Model.FreeSlots < amount)
+                        _availableDealStacks.RemoveAt(i);
+                }
+                var stack = _availableDealStacks[_random.Next(_availableDealStacks.Count)];
+                var randomLevel = dealtHighestUnlockedChip
+                    ? _random.Next(0, _maxUnlockedChipLevel + 1)
+                    : _maxUnlockedChipLevel;
+                dealtHighestUnlockedChip = true;
                 for (var i = 0; i < amount; i++)
                 {
-                    var randomLevel = dealtHighestUnlockedChip
-                        ? _random.Next(0, _maxUnlockedChipLevel + 1)
-                        : _maxUnlockedChipLevel;
-                    dealtHighestUnlockedChip = true;
                     var token = new ChipToken(
                         (ChipColor)(randomLevel % ChipColorCount),
                         randomLevel);

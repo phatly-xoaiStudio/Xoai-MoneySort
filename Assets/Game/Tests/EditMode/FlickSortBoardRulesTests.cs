@@ -64,6 +64,35 @@ namespace FlickSort.Tests
             Assert.That(FlickSortBoardRules.GetAccessState(14, 5), Is.EqualTo(StackAccessState.Rent));
         }
 
+        [TestCase(2, 2)]
+        [TestCase(3, 3)]
+        [TestCase(4, 2)]
+        [TestCase(5, 3)]
+        public void DealGroup_NeverLeavesASingleChip(int remaining, int expected)
+        {
+            var amount = FlickSortBoardRules.GetDealGroupSize(
+                remaining,
+                2,
+                3,
+                10,
+                new System.Random(0));
+
+            Assert.That(amount, Is.EqualTo(expected));
+            Assert.That(amount, Is.GreaterThanOrEqualTo(2));
+            Assert.That(remaining - amount, Is.Not.EqualTo(1));
+        }
+
+        [Test]
+        public void DealGroup_ReturnsZero_WhenOnlyOneChipOrSlotRemains()
+        {
+            Assert.That(
+                FlickSortBoardRules.GetDealGroupSize(1, 2, 3, 10, new System.Random(0)),
+                Is.Zero);
+            Assert.That(
+                FlickSortBoardRules.GetDealGroupSize(5, 2, 3, 1, new System.Random(0)),
+                Is.Zero);
+        }
+
         [TestCase(1, 6, 2)]
         [TestCase(2, 7, 3)]
         [TestCase(3, 8, 5)]

@@ -47,6 +47,42 @@ namespace FlickSort
             return availableCount;
         }
 
+        public static int GetDealGroupSize(
+            int remaining,
+            int minimumGroupSize,
+            int configuredMax,
+            int largestAvailableSpace,
+            System.Random random)
+        {
+            var minimum = Math.Max(1, minimumGroupSize);
+            if (remaining < minimum || largestAvailableSpace < minimum)
+                return 0;
+
+            var maximum = Math.Min(
+                remaining,
+                Math.Min(largestAvailableSpace, Math.Max(minimum, configuredMax)));
+            if (maximum < minimum)
+                return 0;
+
+            var amount = random.Next(minimum, maximum + 1);
+            if (IsValidDealRemainder(remaining - amount, minimum))
+                return amount;
+            for (var candidate = amount + 1; candidate <= maximum; candidate++)
+            {
+                if (IsValidDealRemainder(remaining - candidate, minimum))
+                    return candidate;
+            }
+            for (var candidate = amount - 1; candidate >= minimum; candidate--)
+            {
+                if (IsValidDealRemainder(remaining - candidate, minimum))
+                    return candidate;
+            }
+            return 0;
+        }
+
+        private static bool IsValidDealRemainder(int remaining, int minimumGroupSize) =>
+            remaining == 0 || remaining >= minimumGroupSize;
+
         public static StackAccessState GetAccessState(int slotIndex, int oneBasedLevel)
         {
             if (slotIndex < 0 || slotIndex >= TotalSlotCount)
@@ -122,6 +158,7 @@ namespace FlickSort
         [Range(1, 10)] public int maxChipLevel = 10;
         [Min(1)] public int stackCapacity = 10;
         [Min(1)] public int defaultDealChipCount = 10;
+        [Min(1)] public int minimumDealColorGroupSize = 2;
         public Vector2Int randomChipsPerStack = new(1, 3);
 
         [Header("Layout")]
@@ -176,9 +213,15 @@ namespace FlickSort
 
         private void OnValidate()
         {
-            randomChipsPerStack.x = Mathf.Max(1, randomChipsPerStack.x);
-            randomChipsPerStack.y = Mathf.Max(randomChipsPerStack.x, randomChipsPerStack.y);
             stackCapacity = Mathf.Max(mergeChipCount, stackCapacity);
+            randomChipsPerStack.x = Mathf.Max(1, randomChipsPerStack.x);
+            minimumDealColorGroupSize = Mathf.Clamp(
+                minimumDealColorGroupSize,
+                1,
+                stackCapacity);
+            randomChipsPerStack.y = Mathf.Max(
+                Mathf.Max(randomChipsPerStack.x, randomChipsPerStack.y),
+                minimumDealColorGroupSize);
         }
     }
 
