@@ -16,7 +16,9 @@ namespace FlickSort
         public const int InitialRentRow = 2;
         public const int RelocatedRentRow = 3;
         public const int RentColumn = 5;
-        public const int RentRelocationLevel = 11;
+        // Once level 5 unlocks the third locked slot, the level-11 slot becomes
+        // the next unlock at the rent position. Move rent before that overlap.
+        public const int RentRelocationLevel = 5;
         public const int InitialRentSlotIndex =
             (InitialRentRow - 1) * ColumnsPerRow + RentColumn - 1;
         public const int RelocatedRentSlotIndex =

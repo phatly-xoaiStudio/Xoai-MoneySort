@@ -57,10 +57,11 @@ namespace FlickSort.Tests
         {
             Assert.That(FlickSortBoardRules.GetRentSlotIndex(1), Is.EqualTo(9));
             Assert.That(FlickSortBoardRules.GetAccessState(9, 1), Is.EqualTo(StackAccessState.Rent));
-            Assert.That(FlickSortBoardRules.GetRentSlotIndex(10), Is.EqualTo(9));
-            Assert.That(FlickSortBoardRules.GetRentSlotIndex(11), Is.EqualTo(14));
-            Assert.That(FlickSortBoardRules.GetAccessState(9, 11), Is.EqualTo(StackAccessState.Available));
-            Assert.That(FlickSortBoardRules.GetAccessState(14, 11), Is.EqualTo(StackAccessState.Rent));
+            Assert.That(FlickSortBoardRules.GetRentSlotIndex(4), Is.EqualTo(9));
+            Assert.That(FlickSortBoardRules.GetRentSlotIndex(5), Is.EqualTo(14));
+            Assert.That(FlickSortBoardRules.GetAccessState(9, 5), Is.EqualTo(StackAccessState.Locked));
+            Assert.That(FlickSortBoardRules.GetUnlockLevel(9, 5), Is.EqualTo(11));
+            Assert.That(FlickSortBoardRules.GetAccessState(14, 5), Is.EqualTo(StackAccessState.Rent));
         }
 
         [TestCase(1, 6, 2)]
