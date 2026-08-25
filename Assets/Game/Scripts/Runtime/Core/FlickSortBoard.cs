@@ -50,6 +50,7 @@ namespace FlickSort
         private Vector3 _authoredBackgroundScale;
         private Vector2 _authoredBackgroundWorldSize;
         private Vector2Int _lastScreenSize;
+        private int _activeRentStackIndex = -1;
 
         public bool IsBusy => _busy;
         public int CurrentLevel => _currentLevel;
@@ -207,6 +208,7 @@ namespace FlickSort
             _chipScore = 0;
             _chipUnlockedThisAction = false;
             _activeSkill = BoardSkillMode.None;
+            _activeRentStackIndex = -1;
             ClearBoard();
             InitializeSceneStacks();
             RaiseScoreProgressChanged();
@@ -265,9 +267,12 @@ namespace FlickSort
 
         public bool RentStackForDuration(int stackIndex, float durationSeconds)
         {
+            if (_activeRentStackIndex >= 0)
+                return false;
             if (!UnlockRentedStack(stackIndex))
                 return false;
 
+            _activeRentStackIndex = stackIndex;
             StartCoroutine(RentStackRoutine(stackIndex, Mathf.Max(1f, durationSeconds)));
             return true;
         }
@@ -321,8 +326,11 @@ namespace FlickSort
                 }
             }
 
-            stack.SetAccessState(StackAccessState.Rent);
-            stack.SetRentTimeRemaining(durationSeconds);
+            _activeRentStackIndex = -1;
+            ApplyStackAvailability();
+            var rentStackIndex = FlickSortBoardRules.GetRentSlotIndex(_currentLevel);
+            if (rentStackIndex >= 0 && rentStackIndex < _stacks.Count)
+                _stacks[rentStackIndex]?.SetRentTimeRemaining(durationSeconds);
             CollectAvailableDealStacks();
             if (_chipUnlockedThisAction || HasReachedRequiredScore())
                 yield return LevelUpRoutine();
@@ -764,6 +772,8 @@ namespace FlickSort
         {
             var nextLockedSlotIndex =
                 FlickSortBoardRules.GetNextLockedSlotIndex(_currentLevel);
+            var desiredRentSlotIndex =
+                FlickSortBoardRules.GetRentSlotIndex(_currentLevel);
 
             for (var i = 0; i < _stacks.Count; i++)
             {
@@ -771,9 +781,20 @@ namespace FlickSort
                 if (stack == null)
                     continue;
 
+                if (_activeRentStackIndex >= 0)
+                {
+                    if (i == _activeRentStackIndex)
+                        continue;
+                    if (i == desiredRentSlotIndex)
+                    {
+                        stack.SetAccessState(StackAccessState.Locked);
+                        continue;
+                    }
+                }
+
                 var state = FlickSortBoardRules.GetAccessState(i, _currentLevel);
                 var displayedUnlockLevel = i == nextLockedSlotIndex
-                    ? FlickSortBoardRules.GetUnlockLevel(i)
+                    ? FlickSortBoardRules.GetUnlockLevel(i, _currentLevel)
                     : 0;
                 stack.SetAccessState(state, displayedUnlockLevel);
             }

@@ -12,8 +12,15 @@ namespace FlickSort
         public const int RentSlotCount = 1;
         public const int LockedSlotCount = 8;
         public const int FirstLevelNumber = 1;
-        public const int RentSlotIndex = InitialAvailableSlotCount;
-        public const int FirstLockedSlotIndex = RentSlotIndex + RentSlotCount;
+        public const int ColumnsPerRow = 5;
+        public const int InitialRentRow = 2;
+        public const int RelocatedRentRow = 3;
+        public const int RentColumn = 5;
+        public const int RentRelocationLevel = 11;
+        public const int InitialRentSlotIndex =
+            (InitialRentRow - 1) * ColumnsPerRow + RentColumn - 1;
+        public const int RelocatedRentSlotIndex =
+            (RelocatedRentRow - 1) * ColumnsPerRow + RentColumn - 1;
 
         private static readonly int[] LockedSlotUnlockLevels =
         {
@@ -43,23 +50,39 @@ namespace FlickSort
             if (slotIndex < 0 || slotIndex >= TotalSlotCount)
                 throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
+            if (slotIndex == GetRentSlotIndex(oneBasedLevel))
+                return StackAccessState.Rent;
             if (slotIndex < InitialAvailableSlotCount)
                 return StackAccessState.Available;
-            if (slotIndex == RentSlotIndex)
-                return StackAccessState.Rent;
 
-            var lockedSlotIndex = slotIndex - FirstLockedSlotIndex;
-            return oneBasedLevel >= LockedSlotUnlockLevels[lockedSlotIndex]
-                ? StackAccessState.Available
-                : StackAccessState.Locked;
+            for (var lockedIndex = 0; lockedIndex < LockedSlotUnlockLevels.Length; lockedIndex++)
+            {
+                if (slotIndex != GetLockedSlotIndex(lockedIndex, oneBasedLevel))
+                    continue;
+
+                return oneBasedLevel >= LockedSlotUnlockLevels[lockedIndex]
+                    ? StackAccessState.Available
+                    : StackAccessState.Locked;
+            }
+
+            throw new InvalidOperationException(
+                $"Slot {slotIndex} has no board access mapping at level {oneBasedLevel}.");
         }
 
-        public static int GetUnlockLevel(int slotIndex)
-        {
-            if (slotIndex < FirstLockedSlotIndex || slotIndex >= TotalSlotCount)
-                throw new ArgumentOutOfRangeException(nameof(slotIndex));
+        public static int GetRentSlotIndex(int oneBasedLevel) =>
+            oneBasedLevel < RentRelocationLevel
+                ? InitialRentSlotIndex
+                : RelocatedRentSlotIndex;
 
-            return LockedSlotUnlockLevels[slotIndex - FirstLockedSlotIndex];
+        public static int GetUnlockLevel(int slotIndex, int oneBasedLevel)
+        {
+            for (var lockedIndex = 0; lockedIndex < LockedSlotUnlockLevels.Length; lockedIndex++)
+            {
+                if (slotIndex == GetLockedSlotIndex(lockedIndex, oneBasedLevel))
+                    return LockedSlotUnlockLevels[lockedIndex];
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(slotIndex));
         }
 
         public static int GetNextLockedSlotIndex(int oneBasedLevel)
@@ -67,10 +90,25 @@ namespace FlickSort
             for (var lockedIndex = 0; lockedIndex < LockedSlotUnlockLevels.Length; lockedIndex++)
             {
                 if (oneBasedLevel < LockedSlotUnlockLevels[lockedIndex])
-                    return FirstLockedSlotIndex + lockedIndex;
+                    return GetLockedSlotIndex(lockedIndex, oneBasedLevel);
             }
 
             return -1;
+        }
+
+        private static int GetLockedSlotIndex(int lockedIndex, int oneBasedLevel)
+        {
+            if (lockedIndex < 0 || lockedIndex >= LockedSlotUnlockLevels.Length)
+                throw new ArgumentOutOfRangeException(nameof(lockedIndex));
+
+            if (lockedIndex < 3)
+                return InitialAvailableSlotCount + lockedIndex;
+            if (lockedIndex == 3)
+                return oneBasedLevel < RentRelocationLevel
+                    ? RelocatedRentSlotIndex
+                    : InitialRentSlotIndex;
+
+            return InitialAvailableSlotCount + lockedIndex;
         }
     }
 

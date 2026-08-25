@@ -39,38 +39,38 @@ namespace FlickSort.Tests
         {
             for (var lockedIndex = 0; lockedIndex < UnlockLevels.Length; lockedIndex++)
             {
-                var slotIndex = FlickSortBoardRules.FirstLockedSlotIndex + lockedIndex;
                 var requiredLevel = UnlockLevels[lockedIndex];
+                var levelBeforeUnlock = requiredLevel - 1;
+                var slotIndex = FlickSortBoardRules.GetNextLockedSlotIndex(levelBeforeUnlock);
 
-                Assert.That(FlickSortBoardRules.GetUnlockLevel(slotIndex), Is.EqualTo(requiredLevel));
                 Assert.That(
-                    FlickSortBoardRules.GetAccessState(slotIndex, requiredLevel - 1),
+                    FlickSortBoardRules.GetUnlockLevel(slotIndex, levelBeforeUnlock),
+                    Is.EqualTo(requiredLevel));
+                Assert.That(
+                    FlickSortBoardRules.GetAccessState(slotIndex, levelBeforeUnlock),
                     Is.EqualTo(StackAccessState.Locked));
-                Assert.That(
-                    FlickSortBoardRules.GetAccessState(slotIndex, requiredLevel),
-                    Is.EqualTo(StackAccessState.Available));
             }
         }
 
         [Test]
-        public void RentSlot_RemainsRentAtEveryProgressionMilestone()
+        public void RentSlot_StartsAtRowTwoColumnFive_ThenMovesToRowThreeColumnFive()
         {
-            foreach (var level in UnlockLevels)
-            {
-                Assert.That(
-                    FlickSortBoardRules.GetAccessState(FlickSortBoardRules.RentSlotIndex, level),
-                    Is.EqualTo(StackAccessState.Rent));
-            }
+            Assert.That(FlickSortBoardRules.GetRentSlotIndex(1), Is.EqualTo(9));
+            Assert.That(FlickSortBoardRules.GetAccessState(9, 1), Is.EqualTo(StackAccessState.Rent));
+            Assert.That(FlickSortBoardRules.GetRentSlotIndex(10), Is.EqualTo(9));
+            Assert.That(FlickSortBoardRules.GetRentSlotIndex(11), Is.EqualTo(14));
+            Assert.That(FlickSortBoardRules.GetAccessState(9, 11), Is.EqualTo(StackAccessState.Available));
+            Assert.That(FlickSortBoardRules.GetAccessState(14, 11), Is.EqualTo(StackAccessState.Rent));
         }
 
-        [TestCase(1, 7, 2)]
-        [TestCase(2, 8, 3)]
-        [TestCase(3, 9, 5)]
-        [TestCase(9, 10, 11)]
-        [TestCase(11, 11, 15)]
-        [TestCase(15, 12, 20)]
-        [TestCase(20, 13, 25)]
-        [TestCase(25, 14, 30)]
+        [TestCase(1, 6, 2)]
+        [TestCase(2, 7, 3)]
+        [TestCase(3, 8, 5)]
+        [TestCase(9, 14, 11)]
+        [TestCase(11, 10, 15)]
+        [TestCase(15, 11, 20)]
+        [TestCase(20, 12, 25)]
+        [TestCase(25, 13, 30)]
         public void NextLockedSlot_ReportsItsUnlockLevel(
             int currentLevel,
             int expectedSlotIndex,
@@ -80,7 +80,7 @@ namespace FlickSort.Tests
 
             Assert.That(slotIndex, Is.EqualTo(expectedSlotIndex));
             Assert.That(
-                FlickSortBoardRules.GetUnlockLevel(slotIndex),
+                FlickSortBoardRules.GetUnlockLevel(slotIndex, currentLevel),
                 Is.EqualTo(expectedUnlockLevel));
         }
 
