@@ -35,6 +35,11 @@ MonoBehaviour:
   defaultShuffleCount: 1
   defaultHammerCount: 1
   defaultFreeMoveCount: 1
+  shuffleEmptySlotCount: 2
+  shuffleHigherValueSetCountRange: {x: 1, y: 3}
+  shuffleSpawnViewportX: -0.15
+  shuffleSpawnVerticalJitter: 0.08
+  shuffleChipMoveStagger: 0.045
   rentSlotDurationSeconds: 2
   rentSlotFreeUseCount: 2
   rentSlotCoinPrice: 250

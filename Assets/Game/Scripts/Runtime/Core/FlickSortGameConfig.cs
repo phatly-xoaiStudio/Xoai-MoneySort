@@ -187,6 +187,11 @@ namespace FlickSort
         [Min(0)] public int defaultShuffleCount = 1;
         [Min(0)] public int defaultHammerCount = 1;
         [Min(0)] public int defaultFreeMoveCount = 1;
+        [Min(0)] public int shuffleEmptySlotCount = 2;
+        public Vector2Int shuffleHigherValueSetCountRange = new(1, 3);
+        public float shuffleSpawnViewportX = -0.15f;
+        [Min(0f)] public float shuffleSpawnVerticalJitter = 0.08f;
+        [Min(0f)] public float shuffleChipMoveStagger = 0.045f;
 
         [Header("Rent Slot")]
         [Min(1f)] public float rentSlotDurationSeconds = 60f;

@@ -782,81 +782,109 @@ namespace FlickSort
             _busy = true;
             ClearSelection();
 
-            var availableStacks = new List<ChipStackView>();
-            var targetCounts = new List<int>();
-            var chips = new List<ChipToken>();
-            var viewsByToken = new Dictionary<ChipToken, Queue<ChipView>>();
+            var shuffleStacks = new List<ChipStackView>();
+            var highestBoardLevel = 0;
 
             for (var stackIndex = 0; stackIndex < _stacks.Count; stackIndex++)
             {
                 var stack = _stacks[stackIndex];
-                if (!stack.IsAvailable)
-                    continue;
-
-                availableStacks.Add(stack);
-                targetCounts.Add(stack.Model.Count);
                 for (var chipIndex = 0; chipIndex < stack.Model.Chips.Count; chipIndex++)
-                    chips.Add(stack.Model.Chips[chipIndex]);
+                    highestBoardLevel = Mathf.Max(
+                        highestBoardLevel,
+                        stack.Model.Chips[chipIndex].Level);
 
-                var stackViews = _views[stack];
-                for (var viewIndex = 0; viewIndex < stackViews.Count; viewIndex++)
-                {
-                    var view = stackViews[viewIndex];
-                    if (!viewsByToken.TryGetValue(view.Token, out var queue))
-                    {
-                        queue = new Queue<ChipView>();
-                        viewsByToken.Add(view.Token, queue);
-                    }
-                    queue.Enqueue(view);
-                }
+                // Rent and rent-closing slots keep their contents and never count
+                // as one of the two empty slots created by Shuffle.
+                if (stack.AccessState == StackAccessState.Available)
+                    shuffleStacks.Add(stack);
             }
 
-            if (chips.Count < 2)
+            if (shuffleStacks.Count <= config.shuffleEmptySlotCount)
             {
                 _busy = false;
                 yield break;
             }
 
             FlickSortEventBus.RaiseShuffleStarted();
-            var plan = ChipShufflePlanner.Build(
-                chips,
-                targetCounts,
-                config.mergeChipCount,
+            var higherValueRange = config.shuffleHigherValueSetCountRange;
+            var plan = ChipShufflePlanner.BuildReplacement(
+                shuffleStacks.Count,
+                config.stackCapacity,
+                config.shuffleEmptySlotCount,
+                highestBoardLevel,
+                config.maxChipLevel,
+                higherValueRange.x,
+                higherValueRange.y,
                 _random);
 
-            for (var i = 0; i < availableStacks.Count; i++)
+            for (var i = 0; i < shuffleStacks.Count; i++)
             {
-                availableStacks[i].Model.Clear();
-                _views[availableStacks[i]].Clear();
+                var stack = shuffleStacks[i];
+                var oldViews = _views[stack];
+                for (var viewIndex = 0; viewIndex < oldViews.Count; viewIndex++)
+                    ReturnChip(oldViews[viewIndex]);
+                stack.Model.Clear();
+                oldViews.Clear();
             }
 
             var sequence = DOTween.Sequence().SetId(this);
-            for (var stackIndex = 0; stackIndex < availableStacks.Count; stackIndex++)
+            for (var stackIndex = 0; stackIndex < shuffleStacks.Count; stackIndex++)
             {
-                var stack = availableStacks[stackIndex];
+                var stack = shuffleStacks[stackIndex];
                 var stackPlan = plan[stackIndex];
+                if (stackPlan.Count == 0)
+                    continue;
+
+                // Every slot owns an independent sequence. Joining those sequences
+                // makes all slots start together while chips inside each slot land
+                // one after another, matching the reference Shuffle animation.
+                var stackSequence = DOTween.Sequence();
                 for (var chipIndex = 0; chipIndex < stackPlan.Count; chipIndex++)
                 {
                     var token = stackPlan[chipIndex];
-                    var view = viewsByToken[token].Dequeue();
+                    var view = GetChip(token);
                     stack.Model.TryAdd(token);
                     _views[stack].Add(view);
-                    view.transform.SetParent(stack.ChipRoot, true);
+                    view.transform.SetParent(stack.ChipRoot, false);
                     view.transform.localScale = Vector3.one;
-
-                    sequence.Join(view.ArcTo(
-                        stack.GetWorldSlot(chipIndex, config.chipSpacing),
+                    var destination = stack.GetWorldSlot(chipIndex, config.chipSpacing);
+                    view.transform.position = GetShuffleStartPosition(destination);
+                    stackSequence.Insert(
+                        chipIndex * config.shuffleChipMoveStagger,
+                        view.ArcTo(
+                        destination,
                         config.jumpPower * 1.5f,
                         config.moveDuration,
                         0f));
                 }
+                sequence.Join(stackSequence);
             }
 
-            sequence.InsertCallback(
-                config.moveDuration,
-                FlickSortEventBus.RaiseChipMoveLanded);
+            sequence.AppendCallback(FlickSortEventBus.RaiseChipMoveLanded);
             yield return sequence.WaitForCompletion();
+
+            for (var i = 0; i < shuffleStacks.Count; i++)
+                yield return ResolveMerges(shuffleStacks[i]);
+
+            if (_chipUnlockedThisAction || HasReachedRequiredScore())
+            {
+                yield return LevelUpRoutine();
+                yield break;
+            }
             _busy = false;
+        }
+
+        private Vector3 GetShuffleStartPosition(Vector3 destination)
+        {
+            var viewportPosition = _camera.WorldToViewportPoint(destination);
+            viewportPosition.x = config.shuffleSpawnViewportX;
+            viewportPosition.y += Mathf.Lerp(
+                -config.shuffleSpawnVerticalJitter,
+                config.shuffleSpawnVerticalJitter,
+                (float)_random.NextDouble());
+            var startPosition = _camera.ViewportToWorldPoint(viewportPosition);
+            startPosition.z = destination.z;
+            return startPosition;
         }
 
         private IEnumerator HammerRoutine(ChipStackView stack)

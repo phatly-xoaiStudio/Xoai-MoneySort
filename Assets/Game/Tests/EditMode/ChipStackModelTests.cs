@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FlickSort.Tests
 {
@@ -173,65 +174,41 @@ namespace FlickSort.Tests
         }
 
         [Test]
-        public void Shuffle_PreservesStackCountsAndUsesTwoColorsWhenPossible()
+        public void Shuffle_RebuildsSingleColorStacksAndLeavesExactlyTwoEmpty()
         {
-            var chips = new List<ChipToken>();
-            for (var i = 0; i < 10; i++)
-                chips.Add(new ChipToken(ChipColor.Red, 1));
-            for (var i = 0; i < 10; i++)
-                chips.Add(new ChipToken(ChipColor.Blue, 2));
-
-            var plan = ChipShufflePlanner.Build(
-                chips,
-                new[] { 10, 10 },
+            var plan = ChipShufflePlanner.BuildReplacement(
+                8,
                 10,
+                2,
+                4,
+                10,
+                1,
+                3,
                 new Random(42));
 
-            Assert.That(plan[0].Count, Is.EqualTo(10));
-            Assert.That(plan[1].Count, Is.EqualTo(10));
-            Assert.That(CountColors(plan[0]), Is.GreaterThanOrEqualTo(2));
-            Assert.That(CountColors(plan[1]), Is.GreaterThanOrEqualTo(2));
-            Assert.That(LongestColorRun(plan[0]), Is.LessThan(10));
-            Assert.That(LongestColorRun(plan[1]), Is.LessThan(10));
+            Assert.That(plan.Count, Is.EqualTo(8));
+            Assert.That(plan.Count(stack => stack.Count == 0), Is.EqualTo(2));
+            Assert.That(plan.Where(stack => stack.Count > 0), Has.All.Matches<List<ChipToken>>(
+                stack => stack.All(token => token.Equals(stack[0]))));
         }
 
         [Test]
-        public void Shuffle_WithOneColorNeverLosesChips()
+        public void Shuffle_AddsOneToThreeTokensOneLevelAboveBoardMaximum()
         {
-            var chips = new List<ChipToken>();
-            for (var i = 0; i < 12; i++)
-                chips.Add(new ChipToken(ChipColor.Green, 3));
-
-            var plan = ChipShufflePlanner.Build(
-                chips,
-                new[] { 6, 6 },
+            var plan = ChipShufflePlanner.BuildReplacement(
+                8,
                 10,
+                2,
+                4,
+                10,
+                1,
+                3,
                 new Random(7));
 
-            Assert.That(plan[0].Count, Is.EqualTo(6));
-            Assert.That(plan[1].Count, Is.EqualTo(6));
-        }
-
-        private static int CountColors(IReadOnlyList<ChipToken> chips)
-        {
-            var colors = new HashSet<ChipColor>();
-            for (var i = 0; i < chips.Count; i++)
-                colors.Add(chips[i].Color);
-            return colors.Count;
-        }
-
-        private static int LongestColorRun(IReadOnlyList<ChipToken> chips)
-        {
-            var longest = 0;
-            var current = 0;
-            ChipColor? previous = null;
-            for (var i = 0; i < chips.Count; i++)
-            {
-                current = previous == chips[i].Color ? current + 1 : 1;
-                previous = chips[i].Color;
-                longest = Math.Max(longest, current);
-            }
-            return longest;
+            var higherValueTokens = plan.SelectMany(stack => stack)
+                .Where(token => token.Level == 5)
+                .ToList();
+            Assert.That(higherValueTokens.Count, Is.InRange(1, 3));
         }
 
         private static ChipStackModel CreateStack(int capacity, ChipColor color, int level, int count)
